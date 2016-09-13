@@ -1,0 +1,36 @@
+Introduction to the language
+Week 1, day 1
+
+Serhii Herasymov
+SoftServe
+sgeras@softserveinc.com
+
+* What is Go?
+
+"Go (often referred to as golang) is an open source programming language
+created at Google in 2007 by Robert Griesemer, Rob Pike, and Ken Thompson. It
+is a compiled, statically typed language in the tradition of Algol and C, with
+garbage collection, limited structural typing, memory safety features and
+CSP-style concurrent programming features added."
+
+.link https://en.wikipedia.org/wiki/Go_(programming_language) Wikipedia
+
+* Language genesis
+
+Design began in late 2007.
+
+Key players:
+- Robert Griesemer, Rob Pike, Ken Thompson
+- Later: Ian Lance Taylor, Russ Cox
+
+Became open source in November 2009.
+
+Developed entirely in the open; very active community. 
+Language stable as of Go 1, early 2012.
+
+* What is structured programming
+
+Elements:
+- Control structures
+- Subroutines
+- Blocks
