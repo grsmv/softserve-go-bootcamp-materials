@@ -1,0 +1,54 @@
+<style>
+    .l, .r {
+        width: 45%;
+        float: left;
+        padding-top: 20px;
+        margin-top: 30px;
+    }
+
+    .l {
+        border-right: 1px solid #ccc;
+    }
+
+    .r {
+        padding-left: 5%;
+    }
+
+    .w100 {
+        width: 100%;
+        float: none;
+        clear: both;
+        padding-top:40px;
+    }
+    
+    code {
+        background: lightgoldenrodyellow;
+    }
+</style>
+
+<div class="l">
+    <small>
+        A slice is a descriptor of an array segment. <br>
+        It consists of a pointer to the array, <br>
+        the length of the segment, and its capacity <br>
+        (the maximum length of the segment):
+    </small>
+    <br><br>
+    <img src="./slice-internals.png" alt="">
+</div>
+
+<div class="r">
+    <small>
+        Variable <code>s</code>, created earlier by make([]byte, 5), is structured like this:
+    </small>
+    <br><br>
+    <img src="./slice-internals-s.png" alt="">
+</div>
+
+<div class="w100">
+    <small>
+        Slicing does not copy the slice's data.
+        It creates a new slice value that points to the original array. <br>
+        This makes slice operations as efficient as manipulating array indices.
+    </small>
+</div>

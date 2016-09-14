@@ -242,7 +242,7 @@ Length and capacity of the slice can be accepted with cap() and len() functions:
 
 
 
-* Composite types: Slicing of slices
+* Composite types: Slicing slices
 
 A slice can also be formed by "slicing" an existing slice or array.
 Slicing is done by specifying a half-open range with two indices separated by a colon:
@@ -255,3 +255,132 @@ The start and end indices of a slice expression are optional:
     b[:2] is []byte{'g', 'o'}
     b[2:] is []byte{'l', 'a', 'n', 'g'}
     b[:]  is b
+
+
+
+
+
+
+* Composite types: Slice internals
+
+.html ./slice-internals.html
+
+
+
+
+* Composite types: Growing slices
+
+To increase the capacity of a slice one must create a new, larger slice and copy the contents of the original slice into it:
+
+    t := make([]byte, len(s), (cap(s)+1)*2)
+    for i := range s { t[i] = s[i] }
+    s = t
+
+Using copy(), we can simplify the code snippet above:
+
+    t := make([]byte, len(s), (cap(s)+1)*2)
+    copy(t, s)
+    s = t
+
+The append() adds the elements x to the end of the slice s, and grows the slice if a greater capacity is needed:
+
+    a := make([]int, 1)     // a is []int{0}
+    a = append(a, 1, 2, 3)  // a is []int{0, 1, 2, 3}
+
+* Composite types: Growing slices
+
+To append one slice to another, use ... to expand the second argument to a list of arguments:
+
+    a := []string{"John", "Paul"}
+    b := []string{"George", "Ringo", "Pete"}
+
+    a = append(a, b...) // equivalent to "append(a, b[0], b[1], b[2])"
+
+    // a is []string{"John", "Paul", "George", "Ringo", "Pete"}
+
+
+
+
+
+* Composite types: Maps
+
+A map is an unordered collection of key-value pairs.
+Declaring map:
+
+    var m map[string]int
+
+.image ./map-scheme.png
+
+So we can go nuts:
+
+    var mm map[string]map[string]map[string]int
+
+
+* Composite types: Maps
+
+Initialising a map:
+
+    elements := map[string]string {
+        "H":  "Hydrogen",
+        "He": "Helium",
+        "Li": "Lithium",
+        "Be": "Beryllium",
+        // ...
+    }
+
+More complex map initialisation:
+
+    elementsAttributes := map[string]map[string]string{
+        "H": map[string]string{
+          "name":"Hydrogen",
+          "state":"gas",
+        },
+        "He": map[string]string{
+          "name":"Helium",
+          "state":"gas",
+        },
+        // ...
+    }
+
+
+* Composite types: Maps
+
+We can add key-pair to a map:
+
+    elements["C"] = "Carbon"
+
+Key and value can be fetched simultaneously:
+
+    abbreviation, name := elements["He"]
+    fmt.Println(abbreviation, name)
+
+Use delete() to delete key-pair:
+
+    delete(elements, "He")
+
+
+
+
+
+* Composite types: Structs
+
+A struct is a type which contains named fields.
+
+Example struct declaration:
+
+    type Rectangular struct {
+        Width int
+        Height int
+    }
+
+Short declaration:
+
+    type Rectangular struct {
+        Width, Height int
+    }
+
+Anonymous structure declaration:
+
+    var rect = struct {
+        Width, Height int
+    } { 1, 2 }
