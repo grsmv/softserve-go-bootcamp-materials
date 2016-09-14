@@ -5,6 +5,10 @@ Serhii Herasymov
 SoftServe
 sgeras@softserveinc.com
 
+
+
+
+
 * What is Go?
 
 "Go (often referred to as golang) is an open source programming language
@@ -13,7 +17,11 @@ is a compiled, statically typed language in the tradition of Algol and C, with
 garbage collection, limited structural typing, memory safety features and
 CSP-style concurrent programming features added."
 
-.link https://en.wikipedia.org/wiki/Go_(programming_language) Wikipedia
+.link https://en.wikipedia.org/wiki/Go_(programming_language) Go Programming Language @ Wikipedia
+
+
+
+
 
 * Language genesis
 
@@ -28,9 +36,222 @@ Became open source in November 2009.
 Developed entirely in the open; very active community. 
 Language stable as of Go 1, early 2012.
 
-* What is structured programming
+
+
+
+
+* What is structured programming?
+
+Existed long before all of you were born
 
 Elements:
 - Control structures
 - Subroutines
 - Blocks
+
+
+
+
+
+* What is static typisation?
+
+- A language is statically typed if the type of a variable is known at compile time.
+- Opposite: a language is dynamically typed if the type is associated with run-time values
+- All kinds of type checking can be done by the compiler
+- Other examples of static typed languages: Java, C++, Haskell
+
+
+
+
+
+* Basic data types
+
+* Basic data types: integers
+
+- uint8
+- uint16
+- uint32
+- uint64
+- int8
+- int16
+- int32
+- int64
+
+8, 16, 32 and 64 tell us how many bits each of the types use
+
+byte (rune) is a uint8
+
+Please use int if opposite is not required. Int is machine-dependent
+
+
+
+
+
+* Basic data types: floating point numbers
+
+Floating point types:
+
+- float32
+- float64
+
+Types for representing complex numbers (numbers with imaginary parts):
+
+- complex64
+- complex128
+
+We should use float64 when working with floating point numbers
+
+
+
+
+
+* Basic data types: booleans
+
+Boolean is a 1-bit integer type representing true or false
+
+Logical operators are used with boolean values:
+
+.html ./boolean-operators.html
+
+
+
+
+
+* Basic data types: strings
+
+String is a sequence of characters with a definite length used to represent text
+
+Go strings are made up of individual bytes, usually one for each character
+
+Strings are indexed, starting from 0
+
+(+) is a built-in concatenating operator
+
+Strings ARE mutable, so please shoot your leg with pleasure
+
+
+
+
+
+* Constants
+
+* Constants
+
+Constants are expressions whose value is known to the compiler and whose evaluation is guaranteed to occur at compile time, not at run time.
+The underlying type of each constant is a basic type: boolean, string, number.
+
+Constant declaration:
+
+    const pi = 3.1415
+
+Constant declaration in a block:
+
+    const (
+        e               = 2.71828
+        apéry           = 1.2020569
+        eulerMascheroni = 0.57721
+    )
+
+* Constants
+
+Magic declaration:
+
+    const (
+        a = 1
+        b
+        c = 2
+        d
+    )
+
+    fmt.Println(a, b, c, d) // => 1, 1, 2, 2
+
+* Constants: iota
+
+iota is a constant generator, used to create a sequence of related values without spelling out each one explicitly.
+
+Classic exmaple:
+
+    type Weekday int
+
+    const (
+        Sunday Weekday = iota
+        Monday
+        Tuesday
+        Wednesday
+        Thursday
+        Friday
+        Saturday
+    )
+
+
+
+
+* Assignability
+
+A value x is assignable to a variable of type T ("x is assignable to T") in any of these cases:
+
+- x's type is identical to T.
+- x's type V and T have identical underlying types and at least one of V or T is not a named type.
+- T is an interface type and x implements T.
+- x is a bidirectional channel value, T is a channel type, x's type V and T have identical element types, and at least one of V or T is not a named type.
+- x is the predeclared identifier nil and T is a pointer, function, slice, map, channel, or interface type.
+- x is an untyped constant representable by a value of type T.
+
+
+
+
+* Composite types
+
+* Composite types: Arrays
+
+An array is a numbered sequence of elements of a single type with a fixed length.
+They look like this:
+
+    var arr [4]int
+
+In memory it's looking like this:
+
+.image ./array-memory-representation.png
+
+Go's arrays are values. An array variable denotes the entire array.
+It is not a pointer to the first array element.
+When you assign or pass around an array value you will make a copy of its contents
+
+
+
+
+* Composite types: Slices
+
+Slice type has no specified length
+Slice declaration:
+
+    sl := []int{1, 2, 3, 4, 5}
+
+Slice can be created with make function, which receives slice length and capacity
+
+    	var s []int
+    	s = make([]int, 5, 10)
+    	s[2] = 1
+    	fmt.Println(s) // => [0 0 1 0 0]
+
+Length and capacity of the slice can be accepted with cap() and len() functions:
+
+        len(s) // => 5
+        cap(s) // => 10
+
+
+
+
+* Composite types: Slicing of slices
+
+A slice can also be formed by "slicing" an existing slice or array.
+Slicing is done by specifying a half-open range with two indices separated by a colon:
+
+    b := []byte{'g', 'o', 'l', 'a', 'n', 'g'}
+    // b[1:4] is []byte{'o', 'l', 'a'}
+
+The start and end indices of a slice expression are optional:
+
+    b[:2] is []byte{'g', 'o'}
+    b[2:] is []byte{'l', 'a', 'n', 'g'}
+    b[:]  is b
