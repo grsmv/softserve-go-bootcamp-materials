@@ -1,0 +1,96 @@
+Pointers, methods and interfaces
+Week 1, day 3
+
+Serhii Herasymov
+SoftServe
+sgeras@softserveinc.com
+
+
+
+
+* Pointers
+
+* Basics
+
+Passing by _reference_ means the called functions' parameter will be the same as the callers' passed argument
+(not the value, but the identity - the variable itself).
+
+Passing by _value_ means the called functions' parameter will be a copy of the callers' passed argument.
+
+.image ./pass-scheme.gif
+
+* Pointers in Go
+
+Pointer rules:
+
+- A _variable_ is a piece of storage, containing a value.
+- A _pointer_ value is a _address_ of the variable.
+- Not every value has an address, but every variable does.
+- With a pointer we can read or update the value of a variable _indirectly_, without using or even knowing the name of the variable.
+
+Pointer declaration and usage:
+
+    var x = 1
+    p := &x        // p, of type *int, points to x
+    println(*p)    // => 1
+    *p = 2         // same as x = 2
+    println(p)     // => 2
+
+* Pointers in Go
+
+.html ./star-and-amp-mnemonic.html
+
+* New
+
+Another way to get a pointer is to use the built-in _new()_ function:
+
+    func one (xPtr *int) {
+        *xPtr = 1
+    }
+
+    func main () {
+        xPtr := new(int)
+        one(xPtr)
+        fmt.Println(*xPtr) // x is 1
+    }
+
+_new()_ takes a type as an argument, allocates enough memory to fit a value of that type and returns a pointer to it.
+
+
+
+* Methods
+
+* Methods
+
+_Object_ is a value or variable that has method, and a _method_ is a function, associated with a particular type.
+
+Method schematics:
+
+.image ./method-scheme.png
+
+Example method declaration:
+
+    func (rect Rectangle) Area () int {
+        return rect.Height * rect.Width
+    }
+
+* Methods wth a pointer receiver
+
+If method needs to update a variable we must pass address of the variable using a pointer.
+
+Same goes if for methods that need to update the receiver variable:
+
+    func (rect *Rectangle) ScaleBy (factor int) {
+        rect.Width  *= factor
+        rect.Height *= factor
+    }
+
+    rect := Rectangle{100, 200}
+    rect.ScaleBy(3) // => 600
+
+
+
+
+* Interfaces
+
+* Interfaces
