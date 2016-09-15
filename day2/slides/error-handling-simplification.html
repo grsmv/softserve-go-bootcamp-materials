@@ -1,0 +1,93 @@
+<style>
+    table td {
+        border: none;
+        border-right: 1px solid #ccc;
+        padding-right: 20px;
+        padding-left: 20px;
+        position: relative;
+    }
+
+    table td:last-of-type {
+        border: none
+    }
+
+    .arrow {
+        position: absolute;
+        right: -15px;
+        top: 90px;
+    }
+
+    .arrow img {
+        width: 70px !important;
+    }
+
+</style>
+
+<br>
+<table>
+    <tr>
+        <td style="width: 30%;">
+
+            <div class="arrow">
+                <img src="./arrow.png" alt="">
+            </div>
+
+            <pre>
+_, err = fd.Write(p0)
+if err != nil {
+    return err
+}
+
+_, err = fd.Write(p1)
+if err != nil {
+    return err
+}
+
+_, err = fd.Write(p2)
+if err != nil {
+    return err
+}
+// and so on
+            </pre>
+        </td>
+        <td style="width: 40%;">
+
+            <div class="arrow">
+                <img src="./arrow.png" alt="">
+            </div>
+
+            <pre>
+type errWriter struct {
+    w   io.Writer
+    err error
+}
+
+func (ew *errWriter) write(buf []byte) {
+    if ew.err != nil {
+        return
+    }
+    _, ew.err = ew.w.Write(buf)
+}
+            </pre>
+        </td>
+        <td style="width: 30%;">
+            <pre>
+ew := &errWriter{w: fd}
+ew.write(p0)
+ew.write(p1)
+ew.write(p2)
+
+// and so on
+
+if ew.err != nil {
+    return ew.err
+}
+            </pre>
+        </td>
+    </tr>
+</table>
+
+<small>
+    <br>
+    * with a <b><code>write</code></b> method that stops writing to w as soon as it hits the first error. This encapsulates the repetitive error handling and lets them simplify code
+</small>

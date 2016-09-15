@@ -1,0 +1,185 @@
+Introduction to the language
+Week 1, day 2
+
+Serhii Herasymov
+SoftServe
+sgeras@softserveinc.com
+
+
+
+
+
+* Functions
+
+* Functions
+
+A function is an independent section of code that maps zero or more input parameters to zero or more output parameters:
+
+.image ./function.png
+
+Go functions schematics:
+
+.image ./function-scheme.png
+
+
+* Functions - multiple values
+
+Go is also capable of returning multiple values from a function:
+
+    func f() (int, int) {
+        return 5, 6
+    }
+
+    func main() {
+        x, y := f()
+    }
+
+Multiple values are often used to return an error value along with the result:
+
+    x, err := f()
+
+    x, ok := f() // `ok` is a boolean to indicate subroutine success
+
+
+* Variadic functions
+
+There is a special form available for the last parameter in a Go function:
+
+    func add(args ...int) int {
+        total := 0
+        for _, v := range args {
+            total += v
+        }
+        return total
+    }
+
+    func main() {
+        fmt.Println(add(1,2,3))
+    }
+
+[...] indicates that function takes zero or more of those parameters.
+BTW, this is good way to work with "optional" parameters.
+
+* Closures
+
+It is possible to create functions inside of functions:
+
+    func main() {
+        add := func(x, y int) int {
+            return x + y
+        }
+        fmt.Println(add(1,1))
+    }
+
+Also you can return function as a result of other functions (hello, functional programming):
+
+    func curriedAdd (a int) func (int) int {
+    	return func(b int) int {
+    		return a + b
+    	}
+    }
+
+    // use curriedAdd(2)(3) to call it
+
+* Recursion
+
+Function is able to call itself:
+
+    func factorial(x uint) uint {
+        if x == 0 {
+            return 1
+        }
+        return x * factorial(x-1)
+    }
+
+.image ./recursion.gif
+
+
+
+
+
+* Defer, Panic & Recover
+
+* Defer
+
+Go has a special statement called defer which schedules a function call to be run after the function completes:
+
+    func first()  { println("1st") }
+    func second() { println("2nd") }
+
+    func main() {
+        defer second()
+        first()
+    }
+
+defer is often used when resources need to be freed in some way:
+
+    f, _ := os.Open(filename)
+    defer f.Close()
+
+_NB:_ deferred functions are run even if a run-time panic occurs
+
+* Panic and recover
+
+panic() which causes a run-time error:
+
+    func average(xs []float64) float64 {
+        panic("Not Implemented")
+    }
+
+recover() stops this Drama Queen and returns the value that was passed to the call to panic():
+
+    func main() {
+        defer func() {
+            str := recover()
+            println(str)
+        }()
+        panic("AAAAA, we gonna dye")
+    }
+
+
+
+
+* Error handling
+
+* Errors
+
+Errors are values (!). Values can be programmed, and since errors are values, errors can be programmed.
+
+The error type is an interface type. An error variable represents any value that can describe itself as a string.
+Error interface's declaration:
+
+    type error interface {
+        Error() string
+    }
+
+Here's how you might use errors.New():
+
+    func Sqrt(f float64) (float64, error) {
+        if f < 0 {
+            return 0, errors.New("math: square root of negative number")
+        }
+        // ... implementation
+    }
+
+* Error handling
+
+In Go, error handling is important.
+Basic example:
+
+    user, err := getUsers()
+    if err != nil {
+        println("something happened")
+    }
+
+or
+
+    if user, err := getUsers(); err != nil {
+        println("something happened")
+    } else {
+        doSomethingWith(user)
+    }
+
+* Simplifying repetitive error handling
+
+.html error-handling-simplification.html
