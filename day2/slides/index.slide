@@ -183,3 +183,12 @@ or
 * Simplifying repetitive error handling
 
 .html error-handling-simplification.html
+
+
+
+
+* Live coding: Quick Sort
+
+* Quick Sort
+
+.html ./quick-sort.html

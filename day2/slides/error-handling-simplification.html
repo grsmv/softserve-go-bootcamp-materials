@@ -1,4 +1,9 @@
+<!-- SOURCE: https://www.innoq.com/en/blog/golang-errors-monads/ -->
+
 <style>
+    table {
+        padding-top: 50px;
+    }
     table td {
         border: none;
         border-right: 1px solid #ccc;
@@ -23,7 +28,7 @@
 
 </style>
 
-<br>
+
 <table>
     <tr>
         <td style="width: 30%;">
@@ -89,5 +94,6 @@ if ew.err != nil {
 
 <small>
     <br>
-    * with a <b><code>write</code></b> method that stops writing to w as soon as it hits the first error. This encapsulates the repetitive error handling and lets them simplify code
+    * with a <b><code>write</code></b> method that stops writing to w as soon as it hits the first error.
+    This encapsulates the repetitive error handling and lets them simplify code
 </small>
