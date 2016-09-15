@@ -94,3 +94,57 @@ Same goes if for methods that need to update the receiver variable:
 * Interfaces
 
 * Interfaces
+
+Interface rules:
+
+- _Interface_ define behavior that a type must implement (and expose).
+- An _interface_ _type_ is defined as a set of method signatures.
+- A value of interface type can hold any value that implements those methods.
+
+* Interfaces
+
+Interface usage:
+
+    type Shape interface {
+        Area() int          // Rectangle already has this method, so we can operate
+    }                       // with Rectangle as we do with Shape
+
+    func totalAreas(shapes ...Shape) int {
+        var area int
+        for _, s := range shapes {
+            area += s.Area()
+        }
+        return area
+    }
+
+    func main() {
+    	a := Rectangle{100, 200}
+    	b := Rectangle{50,  60}
+    	c := Rectangle{20,  10}
+
+    	println(totalAreas(a, b, c))
+    }
+
+* Sort interface
+
+    type Person struct {
+    	Name string
+    	Age  int
+    }
+
+    type ByAge []Person    // ByAge implements sort.Interface for []Person based on the Age field.
+
+    func (a ByAge) Len() int           { return len(a) }
+    func (a ByAge) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+    func (a ByAge) Less(i, j int) bool { return a[i].Age < a[j].Age }
+
+    func main () {
+        people := []Person{
+            {"Bob",     31},
+            {"John",    42},
+            {"Michael", 17},
+            {"Jenny",   26},
+        }
+
+        sort.Sort(ByAge(people))
+    }
