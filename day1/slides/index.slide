@@ -384,3 +384,34 @@ Anonymous structure declaration:
     var rect = struct {
         Width, Height int
     } { 1, 2 }
+
+
+* Composite types: Structs - initialisation
+
+We can create an instance of our new Rectangular type in a variety of ways:
+
+    var r Rectangular
+
+This will create a local Rectangular variable that is by default set to zero.
+
+To allocate memory for all the fields, set each of them to their zero value and returns a pointer (*Rectangular):
+
+    r := new(Rectangular)
+
+More often we want to give each of the fields a value:
+
+    r := Rectangular{Width: 200, Height: 300}
+
+Or we can leave off the field names if we know the order they were defined:
+
+    r := Rectangular{200, 300}
+
+
+* Composite types: Structs - fields
+
+We can access fields using the . operator:
+
+    println(r.Width)
+    r.Width = 420
+
+.image ./tim-and-eric-mind-blown.gif
