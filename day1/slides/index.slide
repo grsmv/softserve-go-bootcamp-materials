@@ -127,7 +127,7 @@ Strings are indexed, starting from 0
 
 (+) is a built-in concatenating operator
 
-Strings ARE mutable, so please shoot your leg with pleasure
+Strings ARE immutable, so you can't shoot your leg with pleasure
 
 
 

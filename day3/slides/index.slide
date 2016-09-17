@@ -148,3 +148,34 @@ Interface usage:
 
         sort.Sort(ByAge(people))
     }
+
+
+
+
+
+* interface{} and type assertion
+
+An interface{} type is a type that could be _any_ _value_ (literally):
+
+    var anything     interface{} = "string"
+    var moreAnything interface{} = 123
+
+So you can create a function that can accept any type, custom or internal.
+
+To use such values you must use a _type_ _assertion_:
+
+    func captainObvious (v interface{}) {
+        switch v := anything.(type) {
+            case string:
+                println("string")
+            case int32, int64:
+                println("integer")
+            case SomeCustomType:
+                println("some-custom-type")
+            default:
+                println("unknown")
+        }
+    }
+
+
+* Type casting
