@@ -1,9 +1,10 @@
 Introduction to the language
 Week 1, day 1
 
-Serhii Herasymov
+Dmytro Lahoza
 SoftServe
-sgeras@softserveinc.com
+dlah@softserveinc.com
+@dlagoza
 
 
 
@@ -127,7 +128,7 @@ Strings are indexed, starting from 0
 
 (+) is a built-in concatenating operator
 
-Strings ARE mutable, so please shoot your leg with pleasure
+Strings ARE immutable, so please shoot your leg with pleasure.
 
 
 
@@ -169,7 +170,7 @@ Magic declaration:
 
 iota is a constant generator, used to create a sequence of related values without spelling out each one explicitly.
 
-Classic exmaple:
+Classic example:
 
     type Weekday int
 
@@ -234,7 +235,7 @@ Slice can be created with make function, which receives slice length and capacit
     	s[2] = 1
     	fmt.Println(s) // => [0 0 1 0 0]
 
-Length and capacity of the slice can be accepted with cap() and len() functions:
+Length and capacity of the slice can be fetched with cap() and len() functions:
 
         len(s) // => 5
         cap(s) // => 10
@@ -349,10 +350,11 @@ We can add key-pair to a map:
 
     elements["C"] = "Carbon"
 
-Key and value can be fetched simultaneously:
+And check existence of a key when fetching:
 
-    abbreviation, name := elements["He"]
-    fmt.Println(abbreviation, name)
+    if v, ok := elements["He"]; ok {
+        fmt.Println(v)
+    }
 
 Use delete() to delete key-pair:
 
@@ -413,5 +415,3 @@ We can access fields using the . operator:
 
     println(r.Width)
     r.Width = 420
-
-.image ./tim-and-eric-mind-blown.gif
