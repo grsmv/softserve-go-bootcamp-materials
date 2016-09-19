@@ -349,10 +349,12 @@ We can add key-pair to a map:
 
     elements["C"] = "Carbon"
 
-Key and value can be fetched simultaneously:
+You can examine element existence with:
 
-    abbreviation, name := elements["He"]
-    fmt.Println(abbreviation, name)
+    element, ok := elements["He"]
+    if ok {
+        println(element)
+    }
 
 Use delete() to delete key-pair:
 
