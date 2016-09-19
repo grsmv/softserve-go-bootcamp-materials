@@ -140,7 +140,7 @@ recover() stops this Drama Queen and returns the value that was passed to the ca
             str := recover()
             println(str)
         }()
-        panic("AAAAA, we gonna dye")
+        panic("AAAAA, we gonna die")
     }
 
 
