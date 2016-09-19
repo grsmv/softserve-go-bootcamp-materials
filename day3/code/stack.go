@@ -23,6 +23,7 @@ func (stack *Stack) Pop() {
 	stack.len -= 1
 }
 
+// TODO: change to Top
 func (stack *Stack) Peek() interface{} {
 	return stack.st[0]
 }

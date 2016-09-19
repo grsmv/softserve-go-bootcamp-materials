@@ -1,0 +1,32 @@
+A*
+Week 1
+
+Serhii Herasymov
+SoftServe
+sgeras@softserveinc.com
+
+* Definition
+In computer science, A* is a computer algorithm that is widely used in pathfinding and graph traversal, the process of plotting an efficiently traversable path between multiple points, called nodes. Noted for its performance and accuracy, it enjoys widespread use. However, in practical travel-routing systems, it is generally outperformed by algorithms which can pre-process the graph to attain better performance, although other work has found A* to be superior to other approaches.
+
+* Initial state
+
+.image ./initial-state.png
+
+* Defining neighbours
+
+.image ./defining-neighbours.png
+
+* Open and closed lists
+
+.image ./open-closed-lists.png
+
+* Path evaluation
+
+F = G + H
+
+where
+
+G - costs of movement from Start point to this point, following the founded path
+H - a approximate costs from this point to a Finish point. Defined heuristically
+
+.image ./evaluation.png

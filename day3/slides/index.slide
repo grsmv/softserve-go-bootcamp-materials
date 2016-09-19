@@ -74,7 +74,7 @@ Example method declaration:
         return rect.Height * rect.Width
     }
 
-* Methods wth a pointer receiver
+* Methods with a pointer receiver
 
 If method needs to update a variable we must pass address of the variable using a pointer.
 
