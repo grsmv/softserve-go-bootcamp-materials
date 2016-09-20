@@ -1,9 +1,10 @@
 Functions, error handling, panic and recovery
 Week 1, day 2
 
-Serhii Herasymov
+Dmytro Lahoza
 SoftServe
-sgeras@softserveinc.com
+dlah@softserveinc.com
+@dlagoza
 
 
 
@@ -26,9 +27,16 @@ Go functions schematics:
 
 Go is also capable of returning multiple values from a function:
 
-    func f() (int, int) {
+    func f1() (int, int) {
         return 5, 6
     }
+
+You can predefine result value names
+
+    func f2() (a, b int) {
+        a, b = 1, 2
+        return
+    } 
 
     func main() {
         x, y := f()
@@ -38,7 +46,6 @@ Multiple values are often used to return an error value along with the result:
 
     x, err := f()
 
-    x, ok := f() // `ok` is a boolean to indicate subroutine success
 
 
 * Variadic functions
@@ -58,6 +65,7 @@ There is a special form available for the last parameter in a Go function:
     }
 
 [...] indicates that function takes zero or more of those parameters.
+They will be passed as slice.
 BTW, this is good way to work with "optional" parameters.
 
 * Closures
@@ -91,8 +99,6 @@ Function is able to call itself:
         }
         return x * factorial(x-1)
     }
-
-.image ./recursion.gif
 
 
 
@@ -134,7 +140,7 @@ recover() stops this Drama Queen and returns the value that was passed to the ca
             str := recover()
             println(str)
         }()
-        panic("AAAAA, we gonna dye")
+        panic("AAAAA, we gonna die")
     }
 
 
