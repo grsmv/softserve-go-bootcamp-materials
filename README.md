@@ -4,18 +4,18 @@
 
 #### Week 1, Day 1 - Introduction to the language
 Basic data types, Composite types, Program structure
-- [ ] Slides
-- [ ] Code
+- [x] Slides
+- [x] Code
 
 #### Week 1, Day 2 - Functions
 Error handling, deferred function calls, panic and recover
-- [ ] Slides
-- [ ] Code
+- [x] Slides
+- [x] Code
 
 #### Week 1, Day 3 - Methods and interfaces
 Pointers, pointer-types, type cast String
-- [ ] Slides
-- [ ] Code
+- [x] Slides
+- [x] Code
 
 #### Week 1, Day 4 - Packages and Go toolset
 Import paths, vendoring, packages and naming, code quality, external tools

@@ -128,7 +128,7 @@ Strings are indexed, starting from 0
 
 (+) is a built-in concatenating operator
 
-Strings ARE immutable, so please shoot your leg with pleasure.
+Strings ARE immutable, so you can't shoot your leg with pleasure
 
 
 
@@ -350,10 +350,11 @@ We can add key-pair to a map:
 
     elements["C"] = "Carbon"
 
-And check existence of a key when fetching:
+You can examine element existence with:
 
-    if v, ok := elements["He"]; ok {
-        fmt.Println(v)
+    element, ok := elements["He"]
+    if ok {
+        println(element)
     }
 
 Use delete() to delete key-pair:
