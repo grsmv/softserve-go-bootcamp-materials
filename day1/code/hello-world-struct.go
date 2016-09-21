@@ -1,7 +1,12 @@
 package main
 
+import (
+	j "encoding/json"
+	"fmt"
+)
+
 type Vocabulary struct {
-	Ua string
+	Ua string `json:"ua"`
 	En string
 	De string
 }
@@ -12,6 +17,7 @@ func main() {
 		En: "Hello world!",
 		De: "Hallo welt!",
 	}
-
+	v, _ := j.Marshal(vocabulary)
+	fmt.Println(string(v))
 	println(vocabulary.De)
 }
