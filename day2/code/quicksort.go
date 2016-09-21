@@ -13,8 +13,8 @@ func QuickSort(arr []int) []int {
 	median := arr[rand.Intn(len(arr))]
 
 	lowPart := make([]int, 0, len(arr))
-	highPart := make([]int, 0, len(arr))
 	middlePart := make([]int, 0, len(arr))
+	highPart := make([]int, 0, len(arr))
 
 	for _, item := range arr {
 		switch {
