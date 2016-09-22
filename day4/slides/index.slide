@@ -153,6 +153,20 @@ More information on performed checks:
 
     go doc cmd/vet
 
+* godoc
+
+Godoc extracts and generates documentation for Go programs and displays it through web interface.
+
+Installation:
+
+    golang.org/x/tools/cmd/godoc
+
+Usage:
+
+    godoc -server=:8000
+
+_Live_demo_
+
 
 * $GOPATH
 
