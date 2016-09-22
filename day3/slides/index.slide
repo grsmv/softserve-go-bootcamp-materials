@@ -177,5 +177,66 @@ To use such values you must use a _type_ _assertion_:
         }
     }
 
+* Type assertion
 
-* Type casting
+_Type_assertion_ is an operation applied to an interface value. It looks like this:
+
+*x.(T)*
+
+where:
+- x - is an expression of an interface type
+- T - is a type, called the "asserted" type
+
+A type assertion checks that the dynamic type of it's operand matches the asserted type.
+
+* Ad-hock polymorphism
+
+Simple example:
+
+    if _, ok := x.(int); ok {
+        //
+    } else if _, ok := x.(uint); ok {
+        //
+    }
+
+But we can do better:
+
+A _switch_ statement simplifies an `if-else` chain that performs a series of value equality tests. An analogous _type_switch_ statement simplifies an `if-else` chain of type assertions:
+
+    switch x.(type) {
+    case nil:        // ...
+    case int, uint:  // ...
+    case bool:       // ...
+    case string:     // ...
+    default:         // ...
+    }
+
+
+* Type conversions (casting)
+
+Type casting allows programmers to change an entity from one data type into another. If you need to take advantage
+of certain characteristics of data type hierarchies, then you have to change entities from one data type into another.
+
+Use *T(v)* for type casting:
+
+    var amount int = 42
+    var amount2 float64 = float64 (amount)
+    var amount3 uint = uint (f)
+
+or more simply:
+
+    amount := 42
+    amount2 := float64(amount)
+    amount3 := uint (f)
+
+* Type conversions (casting)
+
+A non-constant value *x* can be converted to type *T* in any of these cases:
+
+- x is assignable to T.
+- x 's type and T have identical underlying types.
+- x 's type and T are unnamed pointer types and their pointer base types have identical underlying types.
+- x's type and T are both integer or floating point types.
+- x's type and T are both complex types.
+- x is an integer or a slice of bytes or runes and T is a string type.
+- x is a string and T is a slice of bytes or runes.

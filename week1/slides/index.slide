@@ -30,3 +30,17 @@ G - costs of movement from Start point to this point, following the founded path
 H - a approximate costs from this point to a Finish point. Defined heuristically
 
 .image ./evaluation.png
+
+* H
+
+H is a value, computed by heuristics. In this case - _Manhattan_ _distance_ - The distance between two points in a grid based on a strictly horizontal and/or vertical path (that is, along the grid lines), as opposed to the diagonal or "as the crow flies" distance.
+
+.image ./heuristics.png
+
+* Continuing search
+
+We need to select a point with minimum _F_ value from Open list. And:
+- Removing it from Open list
+- Checking neighbour points ignoring Obstacles and points already available in Closed lists.
+- Adding valid neighbours to Open list is they're not and setting current Point as a Parent to them
+- Some magick with Open list
