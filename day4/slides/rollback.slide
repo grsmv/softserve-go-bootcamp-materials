@@ -1,0 +1,170 @@
+Pointers, methods and interfaces
+Week 1, day 3.5
+
+Oleksandr Ohursov
+SoftServe
+oohurts@softserveinc.com
+
+* Sort interface
+
+    type Person struct {
+    	Name string
+    	Age  int
+    }
+
+    type ByAge []Person    // ByAge implements sort.Interface for []Person based on the Age field.
+
+    func (a ByAge) Len() int           { return len(a) }
+    func (a ByAge) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+    func (a ByAge) Less(i, j int) bool { return a[i].Age < a[j].Age }
+
+    type Woman struct {
+        Person
+        Boobs int
+    }
+
+    type ByBoobs []Woman    // ByAge implements sort.Interface for []Person based on the Age field.
+
+    func (a ByBoobs) Len() int           { return len(a) }
+    func (a ByBoobs) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+    func (a ByBoobs) Less(i, j int) bool { return a[i].Boobs < a[j].Boobs }
+
+* ...
+
+    func main () {
+        people := []Person{
+            {"Bob",     31},
+            {"John",    42},
+            {"Michael", 17},
+            {"Jenny",   26},
+        }
+        women := []Woman{
+            {Person{"Sandra",22},4},
+            {Person{"Samanta",27},3},
+            {Person{"Pamela",24},5},
+            {Person{"Julia",19},1},
+        }
+
+        sort.Sort(ByAge(people))
+        fmt.Printf("By age: %+v\n",people)
+        sort.Sort(ByBoobs(women))
+        fmt.Printf("By beauty: %+v\n",women)
+    }
+
+semi works 
+.link https://play.golang.org/p/88cHdad8pn
+
+* ...
+
+    func main () {
+        people := []Person{
+           ....
+        }
+        women := []Woman{
+            ...
+        }
+
+        sort.Sort(ByAge(people))
+        sort.Sort(ByBoobs(women))
+        sort.Sort(ByAge(women))
+    }
+
+.link https://play.golang.org/p/NpfMlbPdcK
+ main.go:48: cannot convert women (type []Woman) to type ByAge 
+
+
+* No woman - No cry
+
+.image no-woman-no-cry.jpg
+
+* Not in our case
+
+.image doloy.jpg
+
+* It seems working
+
+.image censored.png
+.link https://play.golang.org/p/lBqSWo-Xu4
+
+
+* Define an interface
+
+type ager interface {
+    age() int
+}
+
+func (p Person) age() int {
+    return p.Age
+}
+
+type ByAge []ager
+
+func (a ByAge) Len() int           { return len(a) }
+func (a ByAge) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a ByAge) Less(i, j int) bool { return a[i].age() < a[j].age() }
+
+* Uncover the secret
+.image opensecret.jpg
+
+* Sad but true...
+
+    aaa := make([]ager, len(people))
+    for i, p := range people {
+        aaa[i] = ager(p)
+    }
+    sort.Sort(ByAge(aaa))
+    fmt.Printf("By age: %+v\n", aaa)
+    
+    sort.Sort(ByBoobs(women))
+    fmt.Printf("By beauty: %+v\n", women)
+    aaa = make([]ager, len(women))
+    for i, p := range women {
+        aaa[i] = ager(p)
+    }
+    sort.Sort(ByAge(aaa))
+    for i, p := range aaa {
+        women[i] = p.(Woman)
+    }
+    fmt.Printf("By age: %+v\n", women)
+
+* From another hand:
+
+    type Ancient struct {
+        Name string
+        C14Percental int
+    }
+
+    func (a Ancient) age() int {
+        return (100 - a.C14Percental)*42
+    }
+
+and use it 
+.link https://play.golang.org/p/dRDl_Gepaq
+
+* like  ager interface
+
+    func main() {
+        people := []Person{
+            {"Bob", 31},
+            {"John", 45},
+            {"Michael", 17},
+            {"Jenny", 26},
+        }
+        women := []Woman{
+            {Person{"Sandra", 22}, 4},
+            {Person{"Samanta", 27}, 3},
+            {Person{"Pamela", 24}, 5},
+            {Person{"Julia", 19}, 1},
+        }
+        lut := []Ancient{{"Coin", 99},{"Necle", 80},{"Stone", 20}}
+
+        collection := make([]ager, len(people)+len(women)+len(lut))
+        for i, p := range people { collection[i] = ager(p) }
+        for i, p := range lut { collection[i+len(people)] = ager(p) }
+        for i, p := range women { collection[i+len(people)+len(lut)] = ager(p) }
+        sort.Sort(ByAge(collection))
+        fmt.Printf("%+v\n\n", collection)
+    }
+
+
+
