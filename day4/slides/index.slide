@@ -1,0 +1,104 @@
+Packages, go tool, vendoring
+Week 1, day 4
+
+Serhii Herasymov
+SoftServe
+sgeras@softserveinc.com
+
+
+* Go tool
+
+`go` is a tool for managing Go source code.
+
+Usage:
+
+    go command [arguments]
+
+The commands are:
+
+    build       compile packages and dependencies
+    clean       remove object files
+    doc         show documentation for package or symbol
+    env         print Go environment information
+    fix         run go tool fix on packages
+    fmt         run gofmt on package sources
+    generate    generate Go files by processing source
+    get         download and install packages and dependencies
+    install     compile and install packages and dependencies
+    list        list packages
+    run         compile and run Go program
+    test        test packages
+    tool        run specified go tool
+    version     print Go version
+    vet         run go tool vet on packages
+
+* go build
+
+Build compiles the packages named by the import paths, along with their dependencies, but it does not install the results.
+
+Usage:
+
+    go build [-o output] [-i] [build flags] [packages]
+
+When compiling a single main package, build writes the resulting executable to an output file named after the first source file ('go build ed.go rx.go' writes 'ed' or 'ed.exe') or the source code directory ('go build unix/sam' writes 'sam' or 'sam.exe'). The '.exe' suffix is added when writing a Windows executable.
+
+* go doc
+
+Doc prints the documentation comments associated with the item identified by its arguments (a package, const, func, type, var, or method) followed by a one-line summary of each of the first-level items "under" that item (package-level declarations for a package, methods for a type, etc.).
+
+Usage:
+
+    go doc [-u] [-c] [package|[package.]symbol[.method]]
+
+* go env
+
+Env prints Go environment information.
+
+Usage:
+
+    go env [var ...]
+
+Example output:
+
+    GOARCH="amd64"
+    GOBIN=""
+    GOEXE=""
+    GOHOSTARCH="amd64"
+    GOHOSTOS="darwin"
+    GOOS="darwin"
+    GOPATH="/Users/serhii/Work/facebook-for-toddlers"
+    GORACE=""
+    GOROOT="/usr/local/go"
+    GOTOOLDIR="/usr/local/go/pkg/tool/darwin_amd64"
+    GO15VENDOREXPERIMENT="1"
+    CC="clang"
+    GOGCCFLAGS="-fPIC -m64 -pthread -fno-caret-diagnostics -Qunused-arguments -fmessage-length=0 -fno-common"
+    CXX="clang++"
+    CGO_ENABLED="1"
+
+* go fmt
+
+Fmt runs the command `gofmt -l -w` on the packages named by the import paths. It prints the names of the files that are modified.
+
+Usage:
+
+    go fmt [-n] [-x] [packages]
+
+* go generate
+
+.image ./automation.png
+
+* go generate
+
+Generate runs commands described by directives within existing files. Those commands can run any process but the intent is to create or update Go source files, for instance by running yacc.
+
+Usage:
+
+    go generate [-run regexp] [-n] [-v] [-x] [build flags] [file.go... | packages]
+
+Can be used with:
+
+- shell
+- stringer - golang.org/x/tools/cmd/stringer
+- mockery - github.com/vektra/mockery
+- gogen - github.com/ernesto-jimenez/gogen
