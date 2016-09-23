@@ -1,0 +1,298 @@
+Packages, go tool, vendoring
+Week 1, day 4
+
+Oleksandr Ohurtsov
+SoftServe
+oohurts@softserveinc.com
+
+
+* Go tool
+
+`go` is a tool for managing Go source code.
+
+Usage:
+
+    go command [arguments]
+
+The commands are:
+
+    build       compile packages and dependencies
+    clean       remove object files
+    doc         show documentation for package or symbol
+    env         print Go environment information
+    fix         run go tool fix on packages
+    fmt         run gofmt on package sources
+    generate    generate Go files by processing source
+    get         download and install packages and dependencies
+    install     compile and install packages and dependencies
+    list        list packages
+    run         compile and run Go program
+    test        test packages
+    tool        run specified go tool
+    version     print Go version
+    vet         run go tool vet on packages
+
+* go build
+
+Build compiles the packages named by the import paths, along with their dependencies, but it does not install the results.
+
+Usage:
+
+    go build [-o output] [-i] [build flags] [packages]
+
+When compiling a single main package, build writes the resulting executable to an output file named after the first source file ('go build ed.go rx.go' writes 'ed' or 'ed.exe') or the source code directory ('go build unix/sam' writes 'sam' or 'sam.exe'). The '.exe' suffix is added when writing a Windows executable.
+
+* go doc
+
+Doc prints the documentation comments associated with the item identified by its arguments (a package, const, func, type, var, or method) followed by a one-line summary of each of the first-level items "under" that item (package-level declarations for a package, methods for a type, etc.).
+
+Usage:
+
+    go doc [-u] [-c] [package|[package.]symbol[.method]]
+
+* go env
+
+Env prints Go environment information.
+
+Usage:
+
+    go env [var ...]
+
+Example output:
+
+    GOARCH="amd64"
+    GOBIN=""
+    GOEXE=""
+    GOHOSTARCH="amd64"
+    GOHOSTOS="darwin"
+    GOOS="darwin"
+    GOPATH="/Users/serhii/Work/facebook-for-toddlers"
+    GORACE=""
+    GOROOT="/usr/local/go"
+    GOTOOLDIR="/usr/local/go/pkg/tool/darwin_amd64"
+    GO15VENDOREXPERIMENT="1"
+    CC="clang"
+    GOGCCFLAGS="-fPIC -m64 -pthread -fno-caret-diagnostics -Qunused-arguments -fmessage-length=0 -fno-common"
+    CXX="clang++"
+    CGO_ENABLED="1"
+
+* go fmt
+
+Fmt runs the command `gofmt -l -w` on the packages named by the import paths. It prints the names of the files that are modified.
+
+Usage:
+
+    go fmt [-n] [-x] [packages]
+
+* go generate
+
+.image ./automation.png
+
+* go generate
+
+Generate runs commands described by directives within existing files. Those commands can run any process but the intent is to create or update Go source files, for instance by running yacc.
+
+Usage:
+
+    go generate [-run regexp] [-n] [-v] [-x] [build flags] [file.go... | packages]
+
+Can be used with:
+
+- *shell*
+- *stringer* - golang.org/x/tools/cmd/stringer
+- *mockery*  - github.com/vektra/mockery
+- *gogen*    - github.com/ernesto-jimenez/gogen
+- *joiner*   - github.com/bslatkin/joiner
+
+* go get
+
+Get downloads the packages named by the import paths, along with their dependencies. It then installs the named packages, like 'go install'.
+
+Usage:
+
+    go get [-d] [-f] [-fix] [-insecure] [-t] [-u] [build flags] [packages]
+
+* go install
+
+Install compiles and installs the packages named by the import paths, along with their dependencies.
+
+Usage:
+
+    go install [build flags] [packages]
+
+* go run
+
+Run compiles and runs the main package comprising the named Go source files. A Go source file is defined to be a file ending in a literal ".go" suffix.
+
+Usage:
+
+    go run [build flags] [-exec xprog] gofiles... [arguments...]
+
+* go test
+
+'Go test' automates testing the packages named by the import paths. It prints a summary of the test results in the format:
+
+    ok   archive/tar   0.011s
+    FAIL archive/zip   0.022s
+    ok   compress/gzip 0.033s
+    ...
+
+Usage:
+
+    go test [build/test flags] [packages] [build/test flags & test binary flags]
+
+* go vet
+
+Vet examines Go source code and reports suspicious constructs, such as Printf calls whose arguments do not align with the format string. Vet uses heuristics that do not guarantee all reports are genuine problems, but it can find errors not caught by the compilers.
+
+Usage:
+
+    go vet [-n] [-x] [build flags] [packages]
+
+More information on performed checks:
+
+    go doc cmd/vet
+
+* godoc
+
+Godoc extracts and generates documentation for Go programs and displays it through web interface.
+
+Installation:
+
+    golang.org/x/tools/cmd/godoc
+
+Usage:
+
+    godoc -server=:8000
+
+_Live_demo_
+
+
+* $GOPATH
+
+* $GOPATH
+
+The GOPATH environment variable is used to specify directories outside of $GOROOT that contain the source for Go projects and their binaries.
+
+$GOPATH (sample) structure:
+
+    .
+    ├── bin
+    │   ├── goose
+    │   ├── goreman
+    │   ├── present
+    │   └── stringer
+    ├── pkg
+    │   └── darwin_amd64
+    └── src
+        ├── bitbucket.org
+        ├── github.com
+        ├── golang.org
+        ├── google.golang.org
+        ├── gopkg.in
+        └── labix.org
+
+* $GOPATH
+
+The source for a package with the import path `X/Y/Z` is in the directory
+
+    $GOPATH/src/X/Y/Z
+
+The binary for a package with the import path `X/Y/Z` is in
+
+    $GOPATH/pkg/$GOOS_$GOARCH/X/Y/Z.a
+
+The binary for a command whose source is in `$GOPATH/src/A/B` is
+
+    $GOPATH/bin/B
+
+* Repository Integration and Creating "go gettable" Projects
+
+When fetching a package the go tool looks at the package's import path to discover a URL. For instance, if you attempt to
+
+    go get code.google.com/p/gomatrix/matrix
+
+the go tool will get the source from the project hosted at http://code.google.com/p/gomatrix/. It will clone the repository to
+
+    $GOPATH/src/code.google.com/p/gomatrix
+
+As a result, if (from your repository project) you import a package that is in the same repository, you need to use its "full" import path - the place "go get" puts it.
+
+
+
+* Package management tools
+
+* vendor folder
+
+go commands has possibility to resolve dependencies in _vendor/_ directories:
+
+    .
+    ├── main.go
+    └── vendor
+        ├── a
+        │   └── a.go
+        ├── b
+        │   └── b.go
+        └── c
+            └── c.go
+
+Usage:
+
+    package main
+    import (
+        "a"
+        "b"
+        "c"
+        "fmt"
+    )
+    // ...
+
+* Tools for vendoring
+
+Tools supporting this feature include:
+
+.link https://github.com/tools/godep Godep
+.link https://github.com/Masterminds/glide Glide
+.link https://github.com/kovetskiy/manul manul (Vendor packages using git submodules)
+.link https://github.com/kardianos/govendor Govendor
+.link https://github.com/hectorj/godm godm
+.link https://github.com/kr/vexp vexp
+.link https://github.com/dpw/vendetta Vendetta
+.link https://github.com/rancher/trash trash
+
+* Code quality
+
+* Go code inspection tools
+
+- *Go*vet* - does analysis on Go source code and reports suspicious constructs.
+- *Golint* (github.com/golang/lint) - Prints out style mistakes.
+- *Errcheck* (github.com/kisielk/errcheck) - Program that checks whether a source code has unhandled errors.
+- *SafeSQL* (github.com/stripe/safesql) - Static analysis command line tool that protects against SQL injections.
+- *Defercheck* (github.com/opennota/check/cmd/defercheck) - Command tool that checks for repeating _defer_ statements.
+- *Structcheck* (github.com/opennota/check/cmd/structcheck) - Command tool that checks for unused field in structs.
+- *Varcheck* (github.com/opennota/check/cmd/varcheck) - Command is doing the same analysis as Structcheck but on global variables and constants.
+
+* Go meta linter
+
+Tool for concurrently run Go lint tools and normalise their output
+
+Install:
+
+    go get -u github.com/alecthomas/gometalinter
+
+Install all known linters:
+
+    $ gometalinter --install
+    Installing:
+      structcheck
+      deadcode
+      gocyclo ...
+
+Run it:
+
+    $ cd example
+    $ gometalinter ./...
+    stutter.go:13::warning: unused struct field MyStruct.Unused (structcheck)
+    stutter.go:9::warning: unused global variable unusedGlobal (varcheck)
+    stutter.go:12:6:warning: exported type MyStruct should have comment or be unexported (golint)
+    ...
