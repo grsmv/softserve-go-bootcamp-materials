@@ -1,0 +1,322 @@
+Goroutines, channels
+Week 1, day 5
+
+Oleksandr Ohursov
+SoftServe
+oohurts@softserveinc.com
+
+* Go go go
+
+* Goroutine
+
+.play ../code/sayhello.go
+
+* Usual programm
+.play ../code/single.go
+
+* Try to run it concurently
+just add some Go *go* magic
+.play ../code/broken.go
+
+* Do it right way
+
+.play ../code/syncwg.go
+
+* Goroutines
+
+* Goroutines basic
+
+Goroutine is a *concurrently* executing activity.
+- Cooperative multitasking
+- N x M model
+- Context managed on compiler level
+- Just *2kb* on stack overhead per a goroutine
+- Allocate memory on start
+
+use keyword *go* to run something as  goroutine
+ 
+ 	go callTheMethod(...)
+ 
+or
+ 
+ 	go func(...){ ....}(...)
+
+It acts like & in a *NIX shell
+
+* Goroutine
+
+Cooperative multitasking switch between goroutines
+
+- Channel operation
+- Blocking syscall
+- Garbage collector
+- Function call (stack changing)
+- Net activity (netpoller)
+- runtime.goshed
+
+* Goroutine
+
+.image switch.png
+
+* Goroutine
+
+.image nm.png
+
+* Channels
+
+* Channels
+
+.play ../code/channels.go
+
+* Channels
+
+Channels are a typed conduit through which you can send and receive values with the channel operator, *<-*
+
+	ch <- v    // Send v to channel ch.
+	v := <-ch  // Receive from ch, and
+				// assign value to v.
+
+(The data flows in the direction of the arrow.)
+
+Like maps and slices, channels must be created before use:
+
+	ch := make(chan int)
+
+By default, sends and receives block until the other side is ready. This allows goroutines to synchronize without explicit locks or condition variables.
+
+* Buffered Channels
+Channels can be buffered. Provide the buffer length as the second argument to make to initialize a buffered channel:
+
+	ch := make(chan int, 100)
+Sends to a buffered channel block only when the buffer is full. Receives block when the buffer is empty.
+
+* Buffered Channels
+
+.play ../code/buffered-channels.go
+
+* Channels Select
+
+The `select` statement lets a goroutine wait on multiple communication operations.
+A `select` blocks until one of its cases can run, then it executes that case. It chooses one at random if multiple are ready.
+
+	for {
+		select {
+		case c <- x:
+			x, y = y, x+y
+		case <-quit:
+			fmt.Println("quit")
+			return
+		}
+	}
+
+* Channels Select Default case
+
+The `default` case in a `select` is run if no other case is ready.
+Use a `default` case to try a send or receive without blocking:
+
+	select {
+	case i := <-c:
+	    // use i
+	default:
+	    // receiving from c would block
+	}
+
+* Channels Select
+
+.play ../code/select.go
+
+* Range and Close
+A sender can close a channel to indicate that no more values will be sent. Receivers can test whether a channel has been closed by assigning a second parameter to the receive expression: after
+
+	v, ok := <-ch
+
+ok is false if there are no more values to receive and the channel is closed.
+
+The loop for `i := range c ` receives values from the channel repeatedly until it is closed.
+
+- Only the sender should close a channel, never the receiver. Sending on a closed channel will cause a panic.
+
+- Channels aren't like files; you don't usually need to close them. Closing is only necessary when the receiver must be told there are no more values coming, such as to terminate a range loop.
+
+* Range and Close
+
+.play ../code/range.go
+
+* Channels & Goroutines
+
+	package main
+
+	import (
+		"fmt"
+		"time"
+	)
+
+	func main() {
+
+		c := make(chan bool)
+
+		go func() {
+			// Do something
+			time.Sleep(time.Second * 5)
+			close(c)
+		}()
+
+		// Wait a message from channel or when it is close.
+		<-c
+
+		fmt.Println("Done")
+	}
+
+* Channels & Goroutines
+
+run at the same moment (DDOS, high load)
+
+	package main
+
+	func worker(start chan bool) {
+		<-start
+		// ... do something
+	}
+
+	func main() {
+		start := make(chan bool)
+
+		for i := 0; i < 100; i++ {
+			go worker(start)
+		}
+
+		close(start)
+		// ...  worker's will starts now!
+	}
+
+* Channels & Goroutines
+
+interupt gorotines at the same moment
+
+	package main
+
+	func worker(quit chan bool) {
+		for {
+			select {
+			// ... do something
+			case <-die:
+				return
+			}
+		}
+	}
+
+	func main() {
+		die := make(chan bool)
+
+		for i := 0; i < 100; i++ {
+			go worker(die)
+		}
+
+		// Stop them all
+		close(die)
+	} 
+
+* Channels & Goroutines
+
+Timeout goroutine execution
+
+	package main
+
+	import "time"
+
+	func worker() {
+		for {
+			timeout := time.After(5 * time.Second)
+
+			select {
+			// ... do something
+
+			case <-timeout:
+				// quit after timeout.
+				return
+			}
+		}
+	}
+
+	func main() {
+		go worker()
+	}
+
+* Channels & Goroutines
+Heartbeat
+
+	package main
+
+	import "time"
+
+	func worker() {
+		heartbeat := time.Tick(30 * time.Second) // heartbeat reset channel on each iteration.
+		for {
+
+			select {
+			// ... Do something
+
+			case <-heartbeat:
+				// ... timer event processing
+			}
+		}
+	}
+
+	func main() {
+		go worker()
+	}
+
+*  Channels & Goroutines
+
+Counters 
+generate Uniq IDs
+
+	package main
+
+	import "fmt"
+
+	func main() {
+		id := make(chan string)
+
+		go func() {
+			var counter int64 = 1
+			for {
+				id <- fmt.Sprintf("%x", counter)
+				counter += 1
+			}
+		}()
+
+		fmt.Printf("%s\n", <-id) // will be 1
+		fmt.Printf("%s\n", <-id) // will be 2
+	}
+
+* Code it 
+Write a clockwall, that acts as a client of several clock servers at once, reading the times from each one and displaying the results.
+
+.image  clocks.jpg
+
+* Example of one host client
+
+	package main
+
+	import (
+		"io"
+		"log"
+		"net"
+		"os"
+	)
+
+	func main() {
+		conn, err := net.Dial("tcp", "localhost:8000")
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer conn.Close()
+		mustCopy(os.Stdout, conn)
+	}
+
+	func mustCopy(dst io.Writer, src io.Reader) {
+		if _, err := io.Copy(dst, src); err != nil {
+			log.Fatal(err)
+		}
+	}
