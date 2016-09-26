@@ -43,4 +43,9 @@ We need to select a point with minimum _F_ value from Open list. And:
 - Removing it from Open list
 - Checking neighbour points ignoring Obstacles and points already available in Closed lists.
 - Adding valid neighbours to Open list is they're not and setting current Point as a Parent to them
-- Some magick with Open list
+- If an adjacent square is already on the open list, check to see if this path to that square is a better one. if the G cost of the new path is lower, change the parent of the adjacent square to the selected square and recalculate both the F and G scores of that square.
+
+* Links
+
+.link http://www.policyalmanac.org/games/aStarTutorial.htm A* Pathfinding for Beginners
+.link http://theory.stanford.edu/~amitp/GameProgramming/AStarComparison.html Introduction to A*
