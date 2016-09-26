@@ -1,0 +1,80 @@
+HTTP server and API
+Week 2, day 6
+
+Dmytro Lahoza
+SoftServe
+dlah@softserveinc.com
+@dlagoza
+
+
+* Go and standard HTTP library
+
+*Go* has great standard HTTP server supplied with `net/http` library.
+
+`http.Server` implements a simple but powerful interface with full support of HTTP/1.0, 1.1 and even 2.0 protocols.
+
+Full featured *TLS/SSL* also included.
+
+It extendable and most of the frameworks work on top of the idea of `net/http`
+
+* RLY?
+
+But standard HTTP servers is *crap*!
+
+* What inside
+
+- Multithreaded system with routine-by-request approach, which can be replaced to workers pool 
+- Router with request multiplexer and parameters parser
+- Everything you need out from the box
+
+* HTTP server
+
+How to start:
+
+    package main
+    
+    import (
+        "fmt"
+        "net/http"
+    )
+    
+    func handler(w http.ResponseWriter, r *http.Request) {
+        fmt.Fprintf(w, "Hi there, I love %s!", r.URL.Path[1:])
+    }
+    
+    func main() {
+        http.HandleFunc("/", handler)
+        http.ListenAndServe(":8080", nil)
+    }
+    
+* HTTP server
+
+How to create middleware
+
+    func log(h http.HandlerFunc) http.HandlerFunc {
+      return func(w http.ResponseWriter, r *http.Request) {
+        log.Println("Before")
+        h(w, r)
+        log.Println("After")
+      }
+    }
+    
+    func main() {
+            http.HandleFunc("/", log(handler))
+            http.ListenAndServe(":8080", nil)
+    }
+    
+* HTTP server
+
+What if panic?
+
+.play ../code/broken.go
+
+* How to work with JSON requests
+Parse into the struct
+    
+.play ../code/json.go
+
+* Live coding
+
+Let's code something
