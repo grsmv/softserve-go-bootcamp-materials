@@ -1,5 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<title>Wiki {{.Title}}</title>
+
+		<link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+		<link href="https://bootswatch.com/superhero/bootstrap.css" rel="stylesheet">
+		
+	</head>
+	<body>
+	<div class="container-fluid">
+
 <h1>{{.Title}}</h1>
 
 <p>[<a href="/edit/{{.Title}}">edit</a>]</p>
 
 <div>{{printf "%s" .Body}}</div>
+
+	</div>
+</body>
+</html>
