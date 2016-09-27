@@ -1,0 +1,418 @@
+Networking
+Week 2, day 2
+
+Serhii Herasymov
+SoftServe
+sgeras@softserveinc.com
+
+* Agenda
+
+- Introduction to network programming with Go
+- API - how to deal with it
+- Data searilisation
+- File server
+- Websockets
+- 3rd party libraries
+- Web frameworks
+- Microservices
+- Dealing with Amazon Lambda
+
+* What was the internet?
+
+.image ./internet.png
+
+* net packages
+
+.image ./net-packages.png
+
+* net/http
+
+    package main
+
+    import (
+        "fmt"
+        "net/http"
+    )
+
+    func handler(w http.ResponseWriter, r *http.Request) {
+        fmt.Fprintf(w, "Hi there, I love %s!", r.URL.Path[1:])
+    }
+
+    func main() {
+        http.HandleFunc("/", handler)
+        http.ListenAndServe(":8080", nil)
+    }
+
+
+* http.ResponseWriter
+
+A _ResponseWriter_ interface is used by an HTTP handler to construct an HTTP response.
+
+    type ResponseWriter interface {
+
+        // Header returns the header map that will be sent by WriteHeader.
+        // Changing the header after a call to WriteHeader (or Write) has
+        // no effect.
+        Header() Header
+
+        // Write writes the data to the connection as part of an HTTP reply.
+        // If WriteHeader has not yet been called, Write calls WriteHeader(http.StatusOK)
+        // before writing the data.  If the Header does not contain a
+        // Content-Type line, Write adds a Content-Type set to the result of passing
+        // the initial 512 bytes of written data to DetectContentType.
+        Write([]byte) (int, error)
+
+        // WriteHeader sends an HTTP response header with status code.
+        // If WriteHeader is not called explicitly, the first call to Write
+        // will trigger an implicit WriteHeader(http.StatusOK).
+        // Thus explicit calls to WriteHeader are mainly used to
+        // send error codes.
+        WriteHeader(int)
+    }
+
+
+* http.Request
+
+    // A Request represents an HTTP request received by a server or to be sent by a client.
+    // The field semantics differ slightly between client and server usage. In addition to
+    // the notes on the fields below, see the documentation for Request.Write and RoundTripper.
+
+    type Request struct {
+        Method           string
+        URL              *url.URL
+        Proto            string       // "HTTP/1.0"
+        ProtoMajor       int          // 1
+        ProtoMinor       int          // 0
+        Header           Header
+        Body             io.ReadCloser
+        ContentLength    int64
+        TransferEncoding []string
+        Close            bool
+        Host             string
+        Form             url.Values
+        PostForm         url.Values
+        MultipartForm    *multipart.Form
+        Trailer          Header
+        RemoteAddr       string
+        RequestURI       string
+        TLS              *tls.ConnectionState
+    }
+
+
+* ServeMux
+
+_ServeMux_ is an HTTP request multiplexer. It matches the URL of each incoming request against a list of registered patterns and calls the handler for the pattern that most closely matches the URL.
+
+Go's HTTP package ships with a few functions to generate common handlers, such as _FileServer_, _NotFoundHandler_ and _RedirectHandler_.
+
+    package main
+
+    import ("log"; "net/http")
+
+    func main() {
+        mux := http.NewServeMux()
+
+        rh := http.RedirectHandler("http://example.org", 307)
+        mux.Handle("/foo", rh)
+
+        log.Println("Listening...")
+        http.ListenAndServe(":3000", mux)
+    }
+
+* ServeMux
+
+Let's step through this:
+
+- In the _main_ function we use the *http.NewServeMux* function to create an empty _ServeMux_.
+- We then use the *http.RedirectHandler* function to create a new handler. This handler 307 redirects all requests it receives to http://example.org.
+- Next we use the *ServeMux.Handle* function to register this with our new _ServeMux_, so it acts as the handler for all incoming requests with the URL path /foo.
+- Finally we create a new server and start listening for incoming requests with the *http.ListenAndServe* function, passing in our ServeMux for it to match requests against.
+
+* ServeMux
+
+_ServeMux_ easily supports multiple routes:
+
+    type timeHandler struct { format string }
+
+    func (th *timeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+        tm := time.Now().Format(th.format)
+        w.Write([]byte("The time is: " + tm))
+    }
+
+    func main() {
+        mux := http.NewServeMux()
+
+        th1123 := &timeHandler{format: time.RFC1123}
+        mux.Handle("/time/rfc1123", th1123)
+
+        th3339 := &timeHandler{format: time.RFC3339}
+        mux.Handle("/time/rfc3339", th3339)
+
+        log.Println("Listening...")
+        http.ListenAndServe(":3000", mux)
+    }
+
+* ListenAndServe
+
+_ListenAndServe_ listens on the TCP network address addr and then calls Serve with handler to handle requests on incoming connections. Handler is typically *nil*, in which case the DefaultServeMux is used.
+
+Here's definition of _ListenAndServe_ from standard library:
+
+    func ListenAndServe(addr string, handler Handler) error {
+        server := &Server{Addr: addr, Handler: handler}
+        return server.ListenAndServe()
+    }
+
+* ListenAndServeTLS
+
+_ListenAndServeTLS_ acts identically to ListenAndServe, except that it expects HTTPS connections. Additionally, files containing a certificate and matching private key for the server must be provided. If the certificate is signed by a certificate authority, the certFile should be the concatenation of the server's certificate, any intermediates, and the CA's certificate.
+
+A trivial example server is:
+
+    import ("log"; "net/http")
+
+    func handler(w http.ResponseWriter, req *http.Request) {
+        w.Header().Set("Content-Type", "text/plain")
+        w.Write([]byte("This is an example server.\n"))
+    }
+
+    func main() {
+        http.HandleFunc("/", handler)
+        log.Printf("About to listen on 10443. Go to https://127.0.0.1:10443/")
+        err := http.ListenAndServeTLS(":10443", "cert.pem", "key.pem", nil)
+        log.Fatal(err)
+    }
+
+* FileServer
+
+Super-simple static webserver:
+
+    package main
+
+    import (
+    	"log"
+    	"net/http"
+    )
+
+    func main() {
+    	log.Fatal(
+    	    http.ListenAndServe(
+    	        ":8080",
+    	        http.FileServer(
+    	            http.Dir("/usr/share/doc"),
+    	        ),
+    	    ),
+    	)
+    }
+
+* Simple API
+
+    func handler(w http.ResponseWriter, r *http.Request) {
+        w.Header().Set("Content-Type", "application/json; charset=utf-8")
+
+        myItems := []string{"item1", "item2", "item3"}
+        a, _ := json.Marshal(myItems)
+
+        w.Write(a)
+        return
+    }
+
+* JSON searilisation
+
+Go offers built-in support for JSON encoding and decoding, including to and from built-in and custom data types.
+
+    type Response struct {
+        Page   int      `json:"page"`
+        Fruits []string `json:"fruits"`
+    }
+
+    func main() {
+        res := &Response{
+            Page:   1,
+            Fruits: []string{
+                "apple", "peach", "pear",
+            },
+        }
+        resB, _ := json.Marshal(res)
+        println(string(res2B))
+    }
+
+* JSON searilisation
+
+You can easily read a request to JSON:
+
+    func readingHandler (rw http.ResponseWriter, req *http.Request) {
+        decoder := json.NewDecoder(req.Body)
+
+        var t Request
+        err := decoder.Decode(&t)
+        if err != nil {
+            panic()
+        }
+        log.Println(t.SomeSpecificField)
+    }
+
+
+* WebSockets
+
+Just use github.com/ *gorilla/websocket*
+
+Gorilla WebSocket is a Go implementation of the WebSocket protocol. This package provides a complete and tested implementation of the WebSocket protocol. The package API is stable.
+
+
+* net/rpc
+
+Package _rpc_ provides access to the exported methods of an object across a network or other I/O connection. A server registers an object, making it visible as a service with the name of the type of the object. After registration, exported methods of the object will be accessible remotely. A server may register multiple objects (services) of different types but it is an error to register multiple objects of the same type.
+
+Only methods that satisfy these criteria will be made available for remote access; other methods will be ignored:
+
+- the method's type is exported.
+- the method is exported.
+- the method has two arguments, both exported (or builtin) types.
+- the method's second argument is a pointer.
+- the method has return type error.
+
+* net/rpc
+
+Here is a simple example. A server wishes to export an object of type Arith:
+
+    package server
+
+    type Args     struct { A, B int }
+    type Quotient struct { Quo, Rem int }
+    type Arith    int
+
+    func (t *Arith) Multiply(args *Args, reply *int) error {
+    	*reply = args.A * args.B
+    	return nil
+    }
+
+    func (t *Arith) Divide(args *Args, quo *Quotient) error {
+    	if args.B == 0 {
+    		return errors.New("divide by zero")
+    	}
+    	quo.Quo = args.A / args.B
+    	quo.Rem = args.A % args.B
+    	return nil
+    }
+
+* net/rpc
+
+The server calls (for HTTP service):
+
+    arith := new(Arith)
+    rpc.Register(arith)
+    rpc.HandleHTTP()
+
+    listener, e := net.Listen("tcp", ":1234")
+    if e != nil {
+    	log.Fatal("listen error:", e)
+    }
+    go http.Serve(listener, nil)
+
+* net/rpc
+
+At this point, clients can see a service *Arith* with methods _Arith.Multiply_ and _Arith.Divide_. To invoke one, a client first dials the server:
+
+    client, err := rpc.DialHTTP("tcp", serverAddress + ":1234")
+    if err != nil {
+    	log.Fatal("dialing:", err)
+    }
+
+Then it can make a remote call:
+
+    args := &server.Args{7,8}
+
+    var reply int
+    err = client.Call("Arith.Multiply", args, &reply)
+    if err != nil {
+    	log.Fatal("arith error:", err)
+    }
+    fmt.Printf("Arith: %d*%d=%d", args.A, args.B, reply)
+
+
+* Libraries
+
+- *Gin* - Gin is a web framework written in Go! It features a martini-like API with much better performance, up to 40 times faster. If you need performance and good productivity.
+- *Goat* - A minimalistic REST API server in Go.
+- *Gorilla* - Gorilla is a web toolkit for the Go programming language.
+- *httprouter* - A high performance router. Use this and the standard http handlers to form a very high performance web framework.
+
+Middlewares:
+
+- *CORS* - Easily add CORS capabilities to your API.
+- *formjson* - Transparently handle JSON input as a standard form POST.
+- *Limiter* - Dead simple rate limit middleware for Go.
+.link https://github.com/avelino/awesome-go github.com/avelino/awesome-go
+
+* Frameworks
+
+* Beego - http://beego.me/
+
+"An open source MVC framework to build and develop your applications in the Go way"
+
+.image ./beego-architecture.png
+
+Beego is built upon 8 independent modules that are loosely coupled. Beego is designed for modular programming. You can still use any of these modules without using Beego’s HTTP logic.
+
+* Revel - https://revel.github.io/
+
+A high-productivity web framework for the Go language.
+
+Features:
+
+- *Hot*Code*Reload* - Edit, save, and refresh. Revel compiles your code and templates
+- *Comprehensive* - It provides routing, parameter parsing, validation, session/flash, templating, caching, job running, a testing framework, and even internationalization.
+- *High*Performance* - (duh)
+
+Components:
+
+- Routing - A simple declarative routing syntax. Type-safe reverse routing.
+- Controllers - Revel organizes endpoints into Controllers. They provide easy data binding and form validation.
+- Templates - Revel makes Go Templates simple to use at scale.
+- Interceptors - Register functionality to be called before or after actions. They can be activated per Controller.
+- Filters - More general functionality can be implemented with Filters.
+
+
+
+* Microservices
+
+* Microservices: go-kit
+
+Distributed programming toolkit for building microservices in large organizations
+
+Has HTTP and RPC’s interfaces
+
+Circuit breaker
+
+Rate limiter
+
+Sophisticated logging
+
+Metrics
+
+.link https://github.com/go-kit/kit https://github.com/go-kit/kit
+
+* Microservices: go-kit
+
+.image ./go-kit-layered-arch.png
+
+
+* Microservices: goa
+
+Design-first approach
+
+Various transports
+
+API documentation with Swagger
+
+.link https://goa.design https://goa.design
+
+
+* Go in Amazon Lambda
+
+.image ./sparta.png
+A Go framework for AWS Lambda microservices - http://gosparta.io
+
+.image ./apex.png
+Apex lets you build, deploy, and manage AWS Lambda functions with ease. - http://apex.run/
