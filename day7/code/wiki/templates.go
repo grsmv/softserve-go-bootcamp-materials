@@ -6,11 +6,37 @@ import (
 	"path/filepath"
 )
 
-var templates = template.Must(template.ParseFiles(filepath.Join(TemplatesPath, "edit.tmpl"), filepath.Join(TemplatesPath, "view.tmpl")))
+type render interface {
+	renderTemplate(w http.ResponseWriter, tmpl string, p *Page)
+}
 
-func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
-	err := templates.ExecuteTemplate(w, tmpl+".tmpl", p)
+type compiledTemplates struct {
+	templates *template.Template
+}
+
+func NewCTemplates(templatesPath string) *compiledTemplates {
+	return &compiledTemplates{
+		templates: template.Must(template.ParseFiles(filepath.Join(templatesPath, "edit.tmpl"), filepath.Join(templatesPath, "view.tmpl"))),
+	}
+}
+
+func (c *compiledTemplates) renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
+	err := c.templates.ExecuteTemplate(w, tmpl+".tmpl", p)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
+}
+
+type DirectTemplate struct {
+	path string
+}
+
+func (dt DirectTemplate) renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
+	t, _ := template.ParseFiles(filepath.Join(dt.path, tmpl+".tmpl"))
+	t.Execute(w, p)
+}
+
+//var templates = NewCTemplates(TemplatesPath)
+var templates = DirectTemplate{
+	path: TemplatesPath,
 }

@@ -11,7 +11,7 @@ func viewHandler(w http.ResponseWriter, r *http.Request, title string) {
 		http.Redirect(w, r, "/edit/"+title, http.StatusFound)
 		return
 	}
-	renderTemplate(w, "view", p)
+	templates.renderTemplate(w, "view", p)
 }
 
 func editHandler(w http.ResponseWriter, r *http.Request, title string) {
@@ -19,7 +19,7 @@ func editHandler(w http.ResponseWriter, r *http.Request, title string) {
 	if err != nil {
 		p = &Page{Title: title}
 	}
-	renderTemplate(w, "edit", p)
+	templates.renderTemplate(w, "edit", p)
 }
 
 func saveHandler(w http.ResponseWriter, r *http.Request, title string) {
