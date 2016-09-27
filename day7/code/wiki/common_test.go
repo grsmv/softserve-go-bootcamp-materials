@@ -7,6 +7,6 @@ import (
 
 func expect(t *testing.T, got interface{}, expected interface{}, description string) {
 	if !reflect.DeepEqual(got, expected) {
-		t.Errorf("%s. Expected %v (type %v) - Got %v (type %v)", description, expected, reflect.TypeOf(expected), got, reflect.TypeOf(got))
+		t.Errorf("%s.\n\tExpected %v (type %v)\n\tGot %v (type %v)", description, expected, reflect.TypeOf(expected), got, reflect.TypeOf(got))
 	}
 }
