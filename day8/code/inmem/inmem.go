@@ -1,6 +1,7 @@
 package inmem
 
 import (
+	"regexp"
 	"sync"
 	"time"
 )
@@ -33,6 +34,20 @@ func (im inMem) delete(key string) {
 	im.Lock()
 	delete(im.storage, key)
 	im.Unlock()
+}
+
+func (im inMem) getMulti(pattern string) ([]interface{}, error) {
+	matcher, err := regexp.Compile(pattern)
+	if err != nil {
+		return nil, err
+	}
+	result := make([]interface{}, 0)
+	for key, value := range im.storage {
+		if matcher.MatchString(key) {
+			result = append(result, value)
+		}
+	}
+	return result, nil
 }
 
 func (im inMem) expire(key string, delay time.Duration) {
