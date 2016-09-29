@@ -1,13 +1,23 @@
 package inmem
 
-import "sync"
+import (
+	"sync"
+	"time"
+)
 
 func (im inMem) set(key string, value interface{}) {
+	if im.closed {
+		return
+	}
 	im.Lock()
 	im.storage[key] = value
 	im.Unlock()
 }
 func (im inMem) get(key string) (interface{}, error) {
+	if im.closed {
+		return nil, errNotFound
+	}
+
 	im.RLock()
 	result, ok := im.storage[key]
 	im.RUnlock()
@@ -17,20 +27,41 @@ func (im inMem) get(key string) (interface{}, error) {
 	return result, nil
 }
 func (im inMem) delete(key string) {
+	if im.closed {
+		return
+	}
 	im.Lock()
 	delete(im.storage, key)
 	im.Unlock()
 }
 
+func (im inMem) expire(key string, delay time.Duration) {
+	go func() {
+		select {
+		case <-im.closeChanel:
+		case <-time.After(delay):
+			im.delete(key)
+		}
+	}()
+}
+func (im inMem) close(notify chan<- struct{}) {
+	im.closed = true
+	close(im.closeChanel)
+	close(notify)
+}
+
 type inMem struct {
 	sync.RWMutex
-	storage map[string]interface{}
+	storage     map[string]interface{}
+	closeChanel chan struct{}
+	closed      bool
 }
 
 //Return new inmem storage
 func New() *inMem {
 	im := inMem{
-		storage: make(map[string]interface{}),
+		storage:     make(map[string]interface{}),
+		closeChanel: make(chan struct{}),
 	}
 	return &im
 }
