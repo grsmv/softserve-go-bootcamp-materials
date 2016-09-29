@@ -1,11 +1,6 @@
 package inmem
 
-import (
-	"fmt"
-	"sync"
-)
-
-var errNotFound = fmt.Errorf("Key not found")
+import "sync"
 
 func (im inMem) set(key string, value interface{}) {
 	im.Lock()
