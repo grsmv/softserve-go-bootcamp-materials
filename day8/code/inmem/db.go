@@ -19,6 +19,43 @@ func (memDB *inMemDB) Save(dbname string, key string, value interface{}, expire 
 	return nil
 }
 
+func (memDB *inMemDB) Get(dbname string, key string, receiver interface{}) error {
+	db, ok := memDB.dbs[dbname]
+	if !ok {
+		return errNotExists
+	}
+	value, err := db.get(key) //race condition
+	if err != nil {
+		return err
+	}
+
+	switch receiver.(type) {
+	case *int:
+		*(receiver.(*int)), err = intFromRecord(value)
+	case *string:
+		*(receiver.(*string)), err = stringFromRecord(value)
+	case *bool:
+		*(receiver.(*bool)), err = boolFromRecord(value)
+	case *float64:
+		*(receiver.(*float64)), err = floatFromRecord(value)
+	default:
+		err = errNotImplemented
+	}
+	return err
+}
+
+func (memDB *inMemDB) CloseDB(dbname string) error {
+	db, ok := memDB.dbs[dbname]
+	if !ok {
+		return errNotExists
+	}
+	waitDB := make(chan struct{})
+	db.close(waitDB)
+	<-waitDB
+	delete(memDB.dbs, dbname)
+	return nil
+}
+
 func intFromRecord(val interface{}) (int, error) {
 	return 0, errNotImplemented
 }
