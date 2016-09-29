@@ -1,0 +1,178 @@
+Database interface 
+Week 2, day 8
+
+Oleksandr Ohurtsov
+SoftServe
+oohurts@softserveinc.com
+
+* Database interface sql.DB
+
+* Database interface sql.DB
+To access databases in Go, you use a sql.DB. You use this type to create statements and transactions, execute queries, and fetch results. a *sql.DB* isn’t a database connection.
+
+* sql.DB 
+- is not database connection.
+- it doesn’t map to notion of a “database” or “schema”.
+
+It’s an abstraction of the interface and existence of a database, which might be as varied as a local file, accessed through a network connection, or in-memory and in-process.
+
+* sql.DB
+- It opens and closes connections to the actual underlying database, via the driver.
+- It manages a pool of connections as needed, which may be a variety of things as mentioned.
+- You can use it to query the database that it represents, as well as creating statements and transactions
+
+* Importing a Database Driver
+	import (
+		"database/sql"
+		_ "github.com/go-sql-driver/mysql"
+	)
+Notice that we’re loading the driver anonymously, aliasing its package qualifier to _ so none of its exported names are visible to our code. Under the hood, the driver registers itself as being available to the database/sql package, but in general nothing else happens.
+
+* Accessing the Database
+
+	func main() {
+		db, err := sql.Open("mysql",
+			"user:password@tcp(127.0.0.1:3306)/hello")
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer db.Close()
+	}
+
+* Retrieving Result Sets
+
+- Execute a query that returns rows.
+- Prepare a statement for repeated use, execute it multiple times, and destroy it.
+- Execute a statement in a once-off fashion, without preparing it for repeated use.
+- Execute a query that returns a single row. There is a shortcut for this special case.
+
+If a function name includes Query, it is designed to ask a question of the database, and will return a set of rows, even if it’s empty. Statements that don’t return rows should not use Query functions; they should use *Exec()*
+
+* Fetching Data from the Database
+
+	var (
+		id int
+		name string
+	)
+	rows, err := db.Query("select id, name from users where id = ?", 1)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		err := rows.Scan(&id, &name)
+		if err != nil {
+			log.Fatal(err)
+		}
+		log.Println(id, name)
+	}
+	err = rows.Err()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+* How Scan() Works
+
+It smart to do a job for you.
+It converts response to associated type.
+
+* Preparing Queries
+
+	stmt, err := db.Prepare("select id, name from users where id = ?")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer stmt.Close()
+	rows, err := stmt.Query(1)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		// ...
+	}
+	if err = rows.Err(); err != nil {
+		log.Fatal(err)
+	}
+
+- in MySQL, the parameter placeholder is *?* 
+- in PostgreSQL it is *$N*, where N is a number
+- SQLite accepts either of these. 
+- In Oracle placeholders begin with a colon and are named, like *:param1*
+
+db.Query() actually prepares, executes, and closes a prepared statement.
+
+* Single-Row Queries
+
+	var name string
+	err = db.QueryRow("select name from users where id = ?", 1).Scan(&name)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+QueryRow() on a prepared statement:
+
+	stmt, err := db.Prepare("select name from users where id = ?")
+	if err != nil {
+		log.Fatal(err)
+	}
+	var name string
+	err = stmt.QueryRow(1).Scan(&name)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(name)
+	fmt.Println(name)
+
+* Statements that Modify Data
+
+Use Exec(), preferably with a prepared statement, to accomplish an INSERT, UPDATE, DELETE, or other statement that doesn’t return rows. The following example shows how to insert a row and inspect metadata about the operation:
+
+	stmt, err := db.Prepare("INSERT INTO users(name) VALUES(?)")
+	if err != nil {
+		log.Fatal(err)
+	}
+	res, err := stmt.Exec("Dolly")
+	if err != nil {
+		log.Fatal(err)
+	}
+	lastId, err := res.LastInsertId()
+	if err != nil {
+		log.Fatal(err)
+	}
+	rowCnt, err := res.RowsAffected()
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Printf("ID = %d, affected = %d\n", lastId, rowCnt)
+
+
+* Working with Transactions
+
+In Go, a transaction is essentially an object that reserves a connection to the datastore. It lets you do all of the operations we’ve seen thus far, but guarantees that they’ll be executed on the same connection.
+
+	tx, err := db.Begin()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer tx.Rollback()
+	stmt, err := tx.Prepare("INSERT INTO foo VALUES (?)")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+* Working with Transactions
+
+	defer stmt.Close() // danger!
+	for i := 0; i < 10; i++ {
+		_, err = stmt.Exec(i)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	err = tx.Commit()
+	if err != nil {
+		log.Fatal(err)
+	}
+	// stmt.Close() runs here!
+
