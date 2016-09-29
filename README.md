@@ -19,21 +19,20 @@ Pointers, pointer-types, type cast String
 
 #### Week 1, Day 4 - Packages and Go toolset
 Import paths, vendoring, packages and naming, code quality, external tools
-- [ ] Slides
-- [ ] Code
+- [x] Slides
+- [x] Code
 
-#### Week 1, Day 5 - Goroutines and channels
+#### Week 2, Day 1 - Goroutines and channels
 Keywords, operating with channels, basic patterns, `for`, `switch` 
-- [ ] Slides
-- [ ] Code
+- [x] Slides
+- [x] Code
 
-#### Week 2, Day 1 - `http` package
+#### Week 2, Day 2 - `http` package
 REST API, middleware, templates
-- [ ] Slides
-- [ ] Code
+- [x] Slides
+- [x] Code
 
-#### Week 2, Day 2 - `http` package part 2, testing and debugging
-Dependency injection for testing
+#### Week 2, Day 3 - testing and debugging
 - [ ] Slides
 - [ ] Code
 
