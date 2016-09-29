@@ -33,20 +33,9 @@ REST API, middleware, templates
 - [x] Code
 
 #### Week 2, Day 3 - testing and debugging
-- [ ] Slides
-- [ ] Code
+- [x] Slides
+- [x] Code
 
-#### Week 2, Day 3 - Database interfaces (`database/sql`). Structs, maps and interface internals
-Dependency injection for testing
-- [ ] Slides
-- [ ] Code
-
-#### Week 2, Day 4 - Escape analysis, SSA, Docker
-SSA for Static Single Assignment ;)
-- [ ] Slides
-- [ ] Code
-
-#### Week 2, Day 5 - Advanced topics
-JSON parsing, type switch, Printf (Kernigan), reflaction
-- [ ] Slides
-- [ ] Code
+#### Week 2, Day 4 - Reflection and database interfaces (`database/sql`).
+- [x] Slides
+- [x] Code

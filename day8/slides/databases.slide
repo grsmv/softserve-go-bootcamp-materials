@@ -1,0 +1,86 @@
+Database interface
+Week 2, day 4
+
+Serhii Herasymov
+SoftServe
+sgeras@softserveinc.com
+
+* database/sql
+
+Resources:
+
+_Docs_:
+.link http://golang.org/pkg/database/sql/ http://golang.org/pkg/database/sql/
+
+_Tutorial_:
+.link http://go-database-sql.org/ http://go-database-sql.org/
+
+_MySQL_Driver_:
+.link http://github.com/go-sql-driver/mysql/ http://github.com/go-sql-driver/mysql/
+
+_Postgres_driver_:
+.link https://github.com/lib/pq https://github.com/lib/pq
+
+* Database interface
+
+- Not a connection.
+- Open()
+- Close()
+- Query()
+- QueryRow()
+- Exec()
+
+Rows:
+
+- Next()
+- Scan()
+
+* Stupid example:
+
+package main
+
+    import (
+        "database/sql"
+        _ "github.com/go-sql-driver/mysql"
+        "log"
+    )
+
+    func main() {
+        db, err := sql.Open("mysql", "user:password@tcp(127.0.0.1:3306)/test")
+        if err != nil {
+            log.Println(err)
+        }
+
+        // What do we have here?
+        defer db.Close()
+    }
+
+
+* Pro tip
+
+Don't do this:
+
+    for i := 0; i < 50; i++ {
+        _, err := db.Query("DELETE FROM hello.world")
+    }
+
+Do this:
+
+    for i := 0; i < 50; i++ {
+        _, err := db.Exec("DELETE FROM hello.world")
+    }
+
+
+* Custom types
+
+You can implement the Valuer and Scanner interfaces.
+
+Why? Transparently transform data in <=> out of the DB.
+
+Compress and uncompress.
+
+Marshall/unmarshall JSON or another type.
+
+Encrypt and decrypt.
+
+.link http://jmoiron.net/blog/built-in-interfaces http://jmoiron.net/blog/built-in-interfaces
