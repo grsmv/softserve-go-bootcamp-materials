@@ -1,5 +1,16 @@
 # Materials for SoftServe's Go Bootcamp
 
+## Running slides
+
+Please make sure that $GOPATH/bin is included to your $PATH.
+
+```bash
+$ git clone https://github.com/grsmv/softserve-go-bootcamp-materials.git
+$ cd softserve-go-bootcamp-materials
+$ go get golang.org/x/tools/present
+$ present
+```
+
 ## Program
 
 #### Week 1, Day 1 - Introduction to the language
