@@ -73,6 +73,13 @@ If a function name includes Query, it is designed to ask a question of the datab
 
 * How Scan() Works
 
+	int64
+	float64
+	bool
+	[]byte
+	string
+	time.Time
+
 It smart to do a job for you.
 It converts response to associated type.
 
