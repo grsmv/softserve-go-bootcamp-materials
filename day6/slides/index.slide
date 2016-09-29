@@ -1,10 +1,10 @@
 HTTP server and API
 Week 2, day 6
 
-Dmytro Lahoza
+Oleksandr Ohurtsov
 SoftServe
-dlah@softserveinc.com
-@dlagoza
+oohurts@softserveinc.com
+
 
 
 * Go and standard HTTP library
@@ -70,10 +70,27 @@ What if panic?
 
 .play ../code/broken.go
 
+* TLS support
+
+    package main
+
+    import (
+        "log"
+        "net/http"
+    )
+
+    func main() {
+        http.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
+            w.Write([]byte("This is a HTTPS example server.\n"))
+        })
+        log.Fatal(http.ListenAndServeTLS(":4443", "certificate.pem", "private.key", nil))
+    }
+
 * How to work with JSON requests
 Parse into the struct
     
 .play ../code/json.go
+
 
 * Live coding
 
