@@ -36,7 +36,4 @@ func (dt DirectTemplate) renderTemplate(w http.ResponseWriter, tmpl string, p *P
 	t.Execute(w, p)
 }
 
-//var templates = NewCTemplates(TemplatesPath)
-var templates = DirectTemplate{
-	path: TemplatesPath,
-}
+var templates render
