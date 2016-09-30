@@ -1,7 +1,7 @@
 package inmem
 
-import "database/sql/driver"
-
+import 
+	 "database/sql/driver"
 type inMemCoonection struct{}                                      //driver.Conn
 func (*inMemCoonection) Prepare(query string) (driver.Stmt, error) {}
 func (*inMemCoonection) Close() error {
