@@ -1,0 +1,287 @@
+Docker
+Week 2, day 9
+
+Oleksandr Ohurtsov
+SoftServe
+oohurts@softserveinc.com
+
+* Docker
+
+* Docker
+.image whale.png 
+Docker containers wrap a piece of software in a complete filesystem that contains everything needed to run: code, runtime, system tools, system libraries – anything that can be installed on a server. This guarantees that the software will always run the same, regardless of its environment.
+
+* Docker containers
+
+ LIGHTWEIGHT
+
+Containers running on a single machine share the same operating system kernel; they start instantly and use less RAM. Images are constructed from layered filesystems and share common files, making disk usage and image downloads much more efficient.
+
+ SECURE BY DEFAULT
+
+Containers isolate applications from one another and the underlying infrastructure, while providing an added layer of protection for the application.
+
+* Containers
+.image containers.png
+
+Containers include the application and all of its dependencies - but share the kernel with other containers, running as isolated processes in user space on the host operating system. Docker containers are not tied to any specific infrastructure: they run on any computer, on any infrastructure, and in any cloud.
+
+* Docker components
+
+.image architecture.svg
+
+* Docker components
+
+- Docker daemon
+- Docker client
+- Docker registry
+.image 3whales.png
+
+* Docker daemon
+
+- Run on the host.
+- Manage containers and images
+- Do not interact to user directly.
+
+* Docker client
+
+Client to communicate to docker daemon and registry(ies)
+
+- *pull* get an image from registry
+- *build* create specific custom image
+- *run* run a container 
+
+* Docker registry
+
+Docker images repository
+
+.image images.png
+Stores images and provide an access to them.
+- public Docker Hub
+- private
+
+Registry is images delivery component.
+
+* Image
+- Read-only template to build container.
+- An image contains Linux OS plus application.
+- Images inherets from another image.
+- UnionFS layers design.
+
+Image is docker's build component.
+
+
+* Container
+
+- 	Looks like a "directory"
+- 	Contains everything to run the application
+- 	Created from an image
+- 	Isolated and secure
+
+Container supports
+ - 	create
+ - 	run
+ - 	stop
+ - 	delete
+ - 	moved
+
+Base component for the docker.
+
+* Dockerfile
+A set of instruction to build the image.
+
+- Base image
+- Commands to run on the base image
+- Environment variables
+- Run command
+
+	FROM  registry.private.io/base
+
+	MAINTAINER Big Boy  <someone@softserveinc.com>
+
+	RUN apk update && apk upgrade && \
+	      apk add docker  iproute2 bash && \
+	        rm -rf /var/cache/apk/*
+
+	ENV APP_NAME=${APP_NAME:-run.me}
+
+	ADD apps /apps
+
+	EXPOSE 9090
+
+	CMD /apps/$APP_NAME/$APP_NAME
+
+* Container's run procedure
+	root# docker run -i -t debian /bin/bash
+- Downloads debian image if not exists localy
+- Creates the container
+- Initialise and mount filesystem
+- Create network connection (virtual interface to host's bridge )
+- Set up IP address
+- Run the application
+- Manage and output application's STDIN/STDOUT/STDERR
+
+* Containers under-the-hood
+
+- Namespaces
+- Control Groups
+- UnionFS
+
+* Control groups
+
+Limits container's available resources:
+
+- CPU 
+- Memory 
+- BlockDevices.
+
+* Control group CPU
+
+- specify a value of shares of the CPU available to the container.
+
+Relative weight has nothing to do with the actual processor speed. In fact, there is no way to say that a container should have access only to 1Ghz of the CPU. Every new container will have *1024* shares of CPU by default. If set one container’s CPU shares to 512 it will receive half of the CPU time compared to the other container.
+	-c, --cpu-shares=
+
+- pin the container’s processes to a particular processor (core).
+To do this,  use the
+	--cpuset switch of the docker 
+
+*/sys/fs/cgroup/cpu/system.slice/docker-$FULL_CONTAINER_ID.scope/*
+
+	$ ls /sys/fs/cgroup/cpu/system.slice/docker-6935854d444d78abe52d629cb9d680334751a0cda82e11d2610e041d77a62b3f.scope/
+	cgroup.clone_children  cpuacct.usage_percpu  cpu.rt_runtime_us  tasks
+	cgroup.procs           cpu.cfs_period_us     cpu.shares
+	cpuacct.stat           cpu.cfs_quota_us      cpu.stat
+	cpuacct.usage          cpu.rt_period_us      notify_on_release
+
+* Control group Memory
+
+The first thing to note is that a container can use *all of the memory on the host with the default settings.*
+
+If you want to limit memory for all of the processes inside of the container just use the -m docker run switch. You can define the value in bytes or by adding a suffix (k, m or g).
+
+	$ docker run -it --rm -m 128m fedora bash
+
+It is a *sum of memory and swap*. This means that Docker will assign to the container -m amount of memory as well as -m amount of swap.
+The current Docker interface does not allow us to specify how much (or disable it entirely) swap should be allowed, so we need live with it for now.
+
+* Control group Memory
+*/sys/fs/cgroup/memory/system.slice/docker-$FULL_CONTAINER_ID.scope/*
+
+	$ ls /sys/fs/cgroup/memory/system.slice/docker-48db72d492307799d8b3e37a48627af464d19895601f18a82702116b097e8396.scope/
+	cgroup.clone_children               memory.memsw.failcnt
+	cgroup.event_control                memory.memsw.limit_in_bytes
+	cgroup.procs                        memory.memsw.max_usage_in_bytes
+	memory.failcnt                      memory.memsw.usage_in_bytes
+	memory.force_empty                  memory.move_charge_at_immigrate
+	memory.kmem.failcnt                 memory.numa_stat
+	memory.kmem.limit_in_bytes          memory.oom_control
+	memory.kmem.max_usage_in_bytes      memory.pressure_level
+	memory.kmem.slabinfo                memory.soft_limit_in_bytes
+	memory.kmem.tcp.failcnt             memory.stat
+	memory.kmem.tcp.limit_in_bytes      memory.swappiness
+	memory.kmem.tcp.max_usage_in_bytes  memory.usage_in_bytes
+	memory.kmem.tcp.usage_in_bytes      memory.use_hierarchy
+	memory.kmem.usage_in_bytes          notify_on_release
+	memory.limit_in_bytes               tasks
+	memory.max_usage_in_bytes
+
+* Control group BlockDevices.
+- Read/write speed
+- Amount of space available to write (quota)
+
+* Control group BlockDevices.
+
+	--blkio-weight=0	
+
+Block IO weight (relative weight) accepts a weight value between 10 and 1000.
+
+	--blkio-weight-device=""	
+
+Block IO weight (relative device weight, format: DEVICE_NAME:WEIGHT)
+
+	--device-read-bps=""
+
+Limit read rate from a device (format: <device-path>:<number>[<unit>]). Number is a positive integer. Unit can be one of kb, mb, or gb.
+
+	--device-write-bps=""
+
+Limit write rate to a device (format: <device-path>:<number>[<unit>]). Number is a positive integer. Unit can be one of kb, mb, or gb.
+
+* Control group BlockDevices.
+
+	--device-read-iops=""
+
+Limit read rate (IO per second) from a device (format: <device-path>:<number>). Number is a positive integer.
+
+	--device-write-iops=""
+
+Limit write rate (IO per second) to a device (format: <device-path>:<number>). Number is a positive integer.
+
+* Control group BlockDevices.
+
+	$ mount
+	/dev/mapper/docker-253:0-....  on / type ext4 (...)
+	proc on /proc type proc (rw,nosuid,nodev,noexec,relatime)
+	tmpfs on /dev type tmpfs (rw,nosuid,context="system_u:object_r:svirt_sandbox_file_t:s0:c447,c990",mode=755)
+
+Or using docker's CLI
+
+	$ sudo /usr/bin/nsenter --target \
+	$(docker inspect -f '{{ .State.Pid }}' $CONTAINER_ID) \
+	--mount --uts --ipc --net --pid mount \
+	| head -1 | awk '{ print $1 }'
+
+Now we can change the value of the BlockIOWriteBandwidth property *RUNTIME!*, like so:
+
+	$ sudo systemctl set-property --runtime \
+	docker-d2115072c442b0453b3df3b16e8366ac9fd3defd4cecd182317a6f195dab3b88.scope \
+	"BlockIOWriteBandwidth=/dev/mapper/docker-253:0-34085... 10M"
+
+* Control group BlockDevices.
+Limiting disk space
+By default you get 10GB of space for each container. Sometimes this is too much, sometimes we cannot fit all of our data there. Unfortunately there is not much we can do about it now.
+
+The only thing we can do is to change the default value for new containers. If you think that some other value (for example 5GB) is a beter fit in your case, you can do it by specifying the --storage-opt for the Docker daemon, like so:
+
+	docker -d --storage-opt dm.basesize=5G
+
+
+* Control group BlockDevices.
+*/sys/fs/cgroup/blkio/system.slice/docker-$FULL_CONTAINER_ID.scope/*
+
+	$ ls /sys/fs/cgroup/blkio/system.slice/docker-48...96.scope/
+	blkio.io_merged                   blkio.sectors_recursive
+	blkio.io_merged_recursive         blkio.throttle.io_service_bytes
+	blkio.io_queued                   blkio.throttle.io_serviced
+	blkio.io_queued_recursive         blkio.throttle.read_bps_device
+	blkio.io_service_bytes            blkio.throttle.read_iops_device
+	blkio.io_service_bytes_recursive  blkio.throttle.write_bps_device
+	blkio.io_serviced                 blkio.throttle.write_iops_device
+	blkio.io_serviced_recursive       blkio.time
+	blkio.io_service_time             blkio.time_recursive
+	blkio.io_service_time_recursive   blkio.weight
+	blkio.io_wait_time                blkio.weight_device
+	blkio.io_wait_time_recursive      cgroup.clone_children
+	blkio.leaf_weight                 cgroup.procs
+	blkio.leaf_weight_device          notify_on_release
+	blkio.reset_stats                 tasks
+	blkio.sectors
+
+* Docker Namespaces
+
+- pid: Process tree
+- net: Network isolation
+- ipc: InterProccess Communication
+- mnt: Mount point.
+- utc: Unix timesharing system. Kernel isolation
+
+* Union FileSystem
+Layer designed. Docker use it to build container's blocks
+Docker uses:
+- AUFS
+- brtfs
+- vfs
+- DeviceMapper
+
+
