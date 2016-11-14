@@ -7,7 +7,7 @@ Please make sure that $GOPATH/bin is included to your $PATH.
 ```bash
 $ git clone https://github.com/grsmv/softserve-go-bootcamp-materials.git
 $ cd softserve-go-bootcamp-materials
-$ go get golang.org/x/tools/present
+$ go get golang.org/x/tools/cmd/present
 $ present
 ```
 
