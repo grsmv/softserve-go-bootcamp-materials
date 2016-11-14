@@ -8,15 +8,18 @@ type A struct {
 }
 
 func main() {
+
 	a := &A{}
 
 	//field, _ := reflect.TypeOf(a).Elem().FieldByName("B")
 
 	for i := 0; i < 10; i++ {
-		f := reflect.TypeOf(a).Elem().FieldByIndex([]int{i})
+
+		f := reflect.TypeOf(a).Elem().Field(i)
 		if f.Name == "" {
 			break
 		}
 		println(string(f.Name), string(f.Tag))
+
 	}
 }

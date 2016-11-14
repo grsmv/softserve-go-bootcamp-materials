@@ -34,7 +34,7 @@ Pointer declaration and usage:
     p := &x        // p, of type *int, points to x
     println(*p)    // => 1
     *p = 2         // same as x = 2
-    println(p)     // => 2
+    println(*p)    // => 2
 
 * Pointers in Go
 
